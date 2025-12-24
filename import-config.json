@@ -1,0 +1,30 @@
+{
+    "description": "Configuration for automatic medication import from SPOT Tunisia",
+    "sources": {
+        "cnam_reimbursed": {
+            "name": "CNAM VEI (Reimbursed)",
+            "url": "https://spot.tn/media/articles/LISTE%20DES%20MEDICAMENTS%20CLASSES%20EN%20VEI%20COUVERTS%20PAR%20LE%20REGIME%20DE%20BASE%2001-12-2025.xlsx",
+            "description": "Liste des médicaments VEI remboursables CNAM (Dec 2025)",
+            "update_frequency": "monthly"
+        },
+        "updates": {
+            "name": "New Medications (Updates)",
+            "url": "https://spot.tn/media/articles/NOUV-01-12-2025.xlsx",
+            "description": "Nouveaux médicaments - Dec 2025",
+            "update_frequency": "monthly"
+        },
+        "removed": {
+            "name": "Removed Medications",
+            "url": "https://spot.tn/media/articles/specialites_supprimees-26-07-2022.xlsx",
+            "description": "Spécialités supprimées de la liste",
+            "update_frequency": "quarterly"
+        }
+    },
+    "settings": {
+        "auto_convert_xlsx": true,
+        "auto_import": true,
+        "backup_before_import": true,
+        "download_directory": "./downloads",
+        "log_directory": "./logs"
+    }
+}

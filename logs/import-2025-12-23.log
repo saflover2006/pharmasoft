@@ -1,0 +1,26 @@
+[2025-12-23T15:12:24.089Z] [INFO] 
+============================================================
+[2025-12-23T15:12:24.091Z] [INFO] Processing: New Medications (Updates)
+[2025-12-23T15:12:24.096Z] [INFO] ============================================================
+
+[2025-12-23T15:12:24.099Z] [INFO] Downloading from: https://spot.tn/media/articles/NOUV-01-12-2025.xlsx
+[2025-12-23T15:12:25.693Z] [SUCCESS] Downloaded to: downloads\updates_2025-12-23T15-12-24-098Z.xlsx
+[2025-12-23T15:12:25.696Z] [INFO] Converting XLSX to CSV: updates_2025-12-23T15-12-24-098Z.xlsx
+[2025-12-23T15:12:25.744Z] [SUCCESS] Converted to CSV: updates_2025-12-23T15-12-24-098Z.csv
+[2025-12-23T15:12:25.747Z] [INFO] Importing CSV to database: updates_2025-12-23T15-12-24-098Z.csv
+[2025-12-23T15:12:26.050Z] [SUCCESS] Import completed
+[2025-12-23T15:12:26.054Z] [SUCCESS] 
+✅ New Medications (Updates) processed successfully!
+
+[2025-12-23T15:14:18.165Z] [INFO] Processing ALL sources...
+
+[2025-12-23T15:14:18.167Z] [INFO] 
+============================================================
+[2025-12-23T15:14:18.169Z] [INFO] Processing: CNAM VEI (Reimbursed)
+[2025-12-23T15:14:18.170Z] [INFO] ============================================================
+
+[2025-12-23T15:14:18.174Z] [INFO] Downloading from: https://spot.tn/media/articles/LISTE%20DES%20MEDICAMENTS%20CLASSES%20EN%20VEI%20COUVERTS%20PAR%20LE%20REGIME%20DE%20BASE%2001-12-2025.xlsx
+[2025-12-23T15:14:18.813Z] [SUCCESS] Downloaded to: downloads\cnam_reimbursed_2025-12-23T15-14-18-174Z.xlsx
+[2025-12-23T15:14:18.816Z] [INFO] Converting XLSX to CSV: cnam_reimbursed_2025-12-23T15-14-18-174Z.xlsx
+[2025-12-23T15:14:19.283Z] [SUCCESS] Converted to CSV: cnam_reimbursed_2025-12-23T15-14-18-174Z.csv
+[2025-12-23T15:14:19.285Z] [INFO] Importing CSV to database: cnam_reimbursed_2025-12-23T15-14-18-174Z.csv

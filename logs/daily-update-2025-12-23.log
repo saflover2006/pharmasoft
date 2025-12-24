@@ -1,0 +1,24 @@
+[2025-12-23T15:43:34.945Z] [INFO] Starting daily update
+[2025-12-23T15:43:34.948Z] [INFO] 
+============================================================
+[2025-12-23T15:43:34.951Z] [INFO] Processing: New Medications (Updates)
+[2025-12-23T15:43:34.953Z] [INFO] ============================================================
+[2025-12-23T15:43:34.956Z] [INFO] Downloading: updates_2025-12-23T15-43-34-956Z.xlsx
+[2025-12-23T15:43:35.321Z] [SUCCESS] Downloaded: updates_2025-12-23T15-43-34-956Z.xlsx
+[2025-12-23T15:43:35.325Z] [INFO] Converting to CSV: updates_2025-12-23T15-43-34-956Z.xlsx
+[2025-12-23T15:43:35.378Z] [SUCCESS] Converted: updates_2025-12-23T15-43-34-956Z.csv
+[2025-12-23T15:43:35.381Z] [INFO] Fast importing: updates_2025-12-23T15-43-34-956Z.csv
+[2025-12-23T15:43:35.744Z] [SUCCESS] Import completed
+[2025-12-23T15:43:35.745Z] [SUCCESS] New Medications (Updates) - SUCCESS
+[2025-12-23T15:43:35.746Z] [INFO] 
+============================================================
+[2025-12-23T15:43:35.747Z] [INFO] Processing: CNAM VEI (Reimbursed)
+[2025-12-23T15:43:35.748Z] [INFO] ============================================================
+[2025-12-23T15:43:35.750Z] [INFO] Downloading: cnam_reimbursed_2025-12-23T15-43-35-750Z.xlsx
+[2025-12-23T15:43:36.079Z] [SUCCESS] Downloaded: cnam_reimbursed_2025-12-23T15-43-35-750Z.xlsx
+[2025-12-23T15:43:36.081Z] [INFO] Converting to CSV: cnam_reimbursed_2025-12-23T15-43-35-750Z.xlsx
+[2025-12-23T15:43:36.566Z] [SUCCESS] Converted: cnam_reimbursed_2025-12-23T15-43-35-750Z.csv
+[2025-12-23T15:43:36.569Z] [INFO] Fast importing: cnam_reimbursed_2025-12-23T15-43-35-750Z.csv
+[2025-12-23T15:43:52.374Z] [SUCCESS] Import completed
+[2025-12-23T15:43:52.376Z] [SUCCESS] CNAM VEI (Reimbursed) - SUCCESS
+[2025-12-23T15:43:52.382Z] [SUCCESS] Daily update completed
