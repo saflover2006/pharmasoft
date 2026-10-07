@@ -604,7 +604,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
       fetch(API_URL + '/auth/verify', { headers: { Authorization: 'Bearer ' + token } })
         .then(r => r.json())
         .then(data => {
-          if (data.success) window.location.href = '/dashboard-user.html';
+          if (data.success) window.location.href = window.toAppUrl('/dashboard-user.html');
         })
         .catch(() => {});
     }
@@ -675,7 +675,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
         if (token) localStorage.setItem('pharmasoft_token', token);
         if (user) localStorage.setItem('pharmasoft_user', JSON.stringify(user));
         localStorage.removeItem('admin_token');
-        window.location.href = '/dashboard-user.html';
+        window.location.href = window.toAppUrl('/dashboard-user.html');
       } else {
         errEl.textContent = data.error?.message || data.error || 'Invalid email or password.';
         errEl.style.display = 'block';
@@ -723,7 +723,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
         if (token) localStorage.setItem('pharmasoft_token', token);
         if (user) localStorage.setItem('pharmasoft_user', JSON.stringify(user));
         localStorage.removeItem('admin_token');
-        window.location.href = '/dashboard-user.html';
+        window.location.href = window.toAppUrl('/dashboard-user.html');
       } else {
         errEl.innerHTML = data.error?.message || data.error || 'Registration failed. Please try again.';
         errEl.style.display = 'block';
