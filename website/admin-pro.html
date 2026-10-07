@@ -624,7 +624,9 @@
     </div>
 
     <script>
-        const API_URL = '/api';
+        // Base path resolution for subfolder hosting (e.g. /pharmasoft/)
+  const BASE_PATH = window.location.pathname.startsWith('/pharmasoft') ? '/pharmasoft' : '';
+  const API_URL = BASE_PATH + '/api';
         let token = localStorage.getItem('admin_token');
         let currentModalId = null;
         let currentTicketId = null; // New

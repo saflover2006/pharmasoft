@@ -35,17 +35,17 @@
     <main>
         <h1>Dashboard Updated</h1>
         <p>The legacy analytics page has been retired. Redirecting you to the current PharmaSOFT experience.</p>
-        <p><a id="fallback-link" href="/index.html">Continue</a></p>
+        <p><a id="fallback-link" href=BASE_PATH + '/index.html'>Continue</a></p>
     </main>
     <script>
         const storedUser = JSON.parse(localStorage.getItem('pharmasoft_user') || 'null');
         const hasAdminToken = Boolean(localStorage.getItem('admin_token'));
         const hasUserToken = Boolean(localStorage.getItem('pharmasoft_token'));
         const target = hasAdminToken || storedUser?.username === 'superadmin'
-            ? '/admin-pro.html'
+            ? BASE_PATH + '/admin-pro.html'
             : hasUserToken
-                ? '/dashboard-user.html'
-                : '/index.html';
+                ? BASE_PATH + '/dashboard-user.html'
+                : BASE_PATH + '/index.html';
 
         document.getElementById('fallback-link').href = target;
         document.getElementById('fallback-link').textContent = `Continue to ${target}`;

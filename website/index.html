@@ -230,7 +230,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
       <h1>Pharmacy Software<br><span class="gradient">Built for the Modern Age</span></h1>
       <p class="hero-desc">PharmaSOFT gives your pharmacy a complete point-of-sale, inventory, and reporting platform. Start free on the web &mdash; or get the full-featured desktop edition for offline power.</p>
       <div class="hero-buttons">
-        <a href="/dashboard-user.html" class="btn btn-primary" id="hero-web-cta">Start Free &mdash; Web Version</a>
+        <a href=BASE_PATH + '/dashboard-user.html' class="btn btn-primary" id="hero-web-cta">Start Free &mdash; Web Version</a>
         <a href="#contact" class="btn btn-ghost" id="hero-desktop-cta">Get Desktop Version</a>
       </div>
       <div class="hero-stats">
@@ -275,7 +275,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
           <li class="dimmed"><span class="check gray">&#10005;</span><div>No offline mode</div></li>
           <li class="dimmed"><span class="check gray">&#10005;</span><div>No receipt printer / scanner integration</div></li>
         </ul>
-        <a href="/dashboard-user.html" class="btn btn-primary" style="width:100%;justify-content:center;" id="web-version-cta">Start Free Now &rarr;</a>
+        <a href=BASE_PATH + '/dashboard-user.html' class="btn btn-primary" style="width:100%;justify-content:center;" id="web-version-cta">Start Free Now &rarr;</a>
       </div>
       <div class="version-card paid reveal reveal-delay-2">
         <span class="version-badge paid">Premium</span>
@@ -394,7 +394,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
           <li class="dim"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d6480" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Offline Mode</li>
           <li class="dim"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d6480" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Hardware Integration</li>
         </ul>
-        <a href="/dashboard-user.html" class="btn btn-primary" style="width:100%;justify-content:center;" id="pricing-free-cta">Create Free Account &rarr;</a>
+        <a href=BASE_PATH + '/dashboard-user.html' class="btn btn-primary" style="width:100%;justify-content:center;" id="pricing-free-cta">Create Free Account &rarr;</a>
       </div>
       <div class="pricing-card highlighted-paid reveal reveal-delay-2" id="plan-desktop">
         <div class="pricing-chip pricing-chip-amber">Full Power</div>
@@ -467,7 +467,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
       <p class="contact-note">We typically respond within a few hours (Mon&ndash;Sat, 9am&ndash;6pm).</p>
       <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.07);">
         <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:1.25rem;">Or start using the free web version right now &mdash; no contact needed:</p>
-        <a href="/dashboard-user.html" class="btn btn-primary" id="contact-free-cta">Create Free Account &rarr;</a>
+        <a href=BASE_PATH + '/dashboard-user.html' class="btn btn-primary" id="contact-free-cta">Create Free Account &rarr;</a>
       </div>
     </div>
   </div>
@@ -481,7 +481,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
         <p>Professional pharmacy management software for Tunisian pharmacies. Web version free. Desktop version available on request.</p>
       </div>
       <div class="footer-col"><h5>Product</h5><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#how-it-works">How It Works</a></li><li><a href="#faq">FAQ</a></li></ul></div>
-      <div class="footer-col"><h5>Get Access</h5><ul><li><a href="/dashboard-user.html">Web Version &mdash; Free</a></li><li><a href="#contact">Desktop Version &mdash; Contact Us</a></li><li><a href="mailto:contact@pharmasoft.tn">Email Us</a></li></ul></div>
+      <div class="footer-col"><h5>Get Access</h5><ul><li><a href=BASE_PATH + '/dashboard-user.html'>Web Version &mdash; Free</a></li><li><a href="#contact">Desktop Version &mdash; Contact Us</a></li><li><a href="mailto:contact@pharmasoft.tn">Email Us</a></li></ul></div>
     </div>
     <div class="footer-bottom">
       <p>&copy; 2025 PharmaSOFT. All rights reserved.</p>
@@ -592,18 +592,20 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
 </div>
 
 <script>
-  const API_URL = '/api';
+  // Base path resolution for subfolder hosting (e.g. /pharmasoft/)
+  const BASE_PATH = window.location.pathname.startsWith('/pharmasoft') ? '/pharmasoft' : '';
+  const API_URL = BASE_PATH + '/api';
 
   // ── Auto-redirect if already logged in ─────────────────────
   (function checkAuth() {
     const token = localStorage.getItem('pharmasoft_token');
     const path = window.location.pathname;
     // Only auto-redirect from root/index
-    if (token && (path === '/' || path === '/index.html' || path === '')) {
+    if (token && (path === '/' || path === BASE_PATH + '/index.html' || path === '')) {
       fetch(API_URL + '/auth/verify', { headers: { Authorization: 'Bearer ' + token } })
         .then(r => r.json())
         .then(data => {
-          if (data.success) window.location.href = '/dashboard-user.html';
+          if (data.success) window.location.href = BASE_PATH + '/dashboard-user.html';
         })
         .catch(() => {});
     }
@@ -637,7 +639,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
   // ── Patch all "Start Free" / "Log In" / "Create Account" CTAs ──
   document.addEventListener('DOMContentLoaded', () => {
     // Log In buttons → open login modal
-    document.querySelectorAll('a[href="/dashboard-user.html"]').forEach(btn => {
+    document.querySelectorAll('a[href=BASE_PATH + '/dashboard-user.html']').forEach(btn => {
       btn.addEventListener('click', e => {
         const token = localStorage.getItem('pharmasoft_token');
         if (!token) {
@@ -674,7 +676,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
         if (token) localStorage.setItem('pharmasoft_token', token);
         if (user) localStorage.setItem('pharmasoft_user', JSON.stringify(user));
         localStorage.removeItem('admin_token');
-        window.location.href = '/dashboard-user.html';
+        window.location.href = BASE_PATH + '/dashboard-user.html';
       } else {
         errEl.textContent = data.error?.message || data.error || 'Invalid email or password.';
         errEl.style.display = 'block';
@@ -722,7 +724,7 @@ footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);pa
         if (token) localStorage.setItem('pharmasoft_token', token);
         if (user) localStorage.setItem('pharmasoft_user', JSON.stringify(user));
         localStorage.removeItem('admin_token');
-        window.location.href = '/dashboard-user.html';
+        window.location.href = BASE_PATH + '/dashboard-user.html';
       } else {
         errEl.innerHTML = data.error?.message || data.error || 'Registration failed. Please try again.';
         errEl.style.display = 'block';
