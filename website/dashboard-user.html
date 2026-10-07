@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Pharmacy Dashboard | PharmaSOFT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded bg-primary-600 flex items-center justify-center text-white font-bold">P
+                    </div>
+                    <span class="font-bold text-gray-900 text-lg">PharmaSOFT</span>
+                    <span
+                        class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full border border-gray-200">Customer
+                        Portal</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button onclick="toggleNotifications()"
+                            class="p-2 text-gray-500 hover:text-primary-600 relative outline-none">
+                            <i class="fa-regular fa-bell text-xl"></i>
+                            <span id="notif-badge"
+                                class="hidden absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">0</span>
+                        </button>
+
+                        <!-- Dropdown -->
+                        <div id="notif-dropdown"
+                            class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden transition-all transform origin-top-right">
+                            <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                <h4 class="font-bold text-gray-900 text-sm">Notifications</h4>
+                                <button onclick="markAllRead()" class="text-xs text-primary-600 hover:underline">Mark
+                                    all read</button>
+                            </div>
+                            <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                <div class="p-4 text-center text-gray-400 text-xs">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="http://localhost:5173" target="_blank"
+                        class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 shadow-sm transition">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Web POS
+                    </a>
+                    <span class="text-sm text-gray-500 hidden sm:block">Logged in as <span id="user-name"
+                            class="font-medium text-gray-900">User</span></span>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-800 font-medium">Sign
+                        Out</button>
+                </div>
+            </div>
+            <!-- Tabs -->
+            <div class="flex space-x-8 -mb-px">
+                <button onclick="switchTab('overview')" id="tab-overview"
+                    class="nav-link active pb-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Overview</button>
+                <button onclick="switchTab('billing')" id="tab-billing"
+                    class="nav-link pb-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Billing
+                    & Invoices</button>
+                <button onclick="switchTab('support')" id="tab-support"
+                    class="nav-link pb-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Support
+                    Center</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- VIEW: OVERVIEW -->
+        <div id="view-overview" class="space-y-8">
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-8 text-white">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">Welcome Back! 👋</h1>
+                        <p class="opacity-90 max-w-2xl text-blue-100">Manage your software access, billing records, downloads, and account setup from one dashboard.</p>
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <a href="http://localhost:5173" target="_blank"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-700 font-bold text-xs rounded-lg hover:bg-blue-50 shadow transition transform hover:-translate-y-0.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Web POS (http://localhost:5173) &rarr;
+                            </a>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20 text-center min-w-[150px]">
+                        <div class="text-xs uppercase tracking-wider opacity-75">Status</div>
+                        <div class="text-xl font-bold text-green-300 flex items-center justify-center gap-2"><i
+                                class="fa-solid fa-circle text-xs"></i> Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">My Products</h2>
+                        <p class="text-sm text-gray-500">See the software currently available on your account.</p>
+                    </div>
+                    <span id="product-count-badge" class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">0 products</span>
+                </div>
+                <div id="products-access-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="text-sm text-gray-400">Loading product access...</div>
+                </div>
+            </div>
+
+            <div id="available-products-section" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hidden">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Your Products</h2>
+                        <p class="text-sm text-gray-500">Your PharmaSOFT web access is always free. Use the options below to manage your account.</p>
+                    </div>
+                    <span id="available-product-count-badge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">0 available</span>
+                </div>
+                <div id="available-products-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="text-sm text-gray-400">Loading available products...</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column -->
+                <div class="lg:col-span-2 space-y-8">
+
+                    <!-- License Key Section (Dynamic) -->
+                    <div id="license-section"
+                        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden group">
+                        <!-- LOCKED STATE (Default) -->
+                        <div id="license-locked" class="">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-gray-100 rounded-bl-full -mr-4 -mt-4"></div>
+                            <h2 id="license-title" class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2 relative z-10">
+                                <i class="fa-solid fa-key text-gray-400"></i> License Key
+                            </h2>
+                            <p id="license-locked-copy" class="text-gray-500 text-sm mb-4 relative z-10">Upgrade to Professional to get your
+                                activation key for the Desktop App.</p>
+                            <div
+                                class="p-3 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-400 text-sm font-mono flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-lock"></i> PLAN RESTRICTED
+                            </div>
+                        </div>
+
+                        <!-- UNLOCKED STATE (Hidden by default) -->
+                        <div id="license-unlocked" class="hidden">
+                            <div
+                                class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110">
+                            </div>
+                            <h2 id="license-unlocked-title" class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 relative z-10">
+                                <i class="fa-solid fa-key text-yellow-500"></i> Your License Key
+                            </h2>
+                            <p id="license-unlocked-copy" class="text-gray-500 text-sm mb-4 relative z-10">Use this key to activate the Premium
+                                features in your Desktop App.</p>
+
+                            <div class="flex gap-2 relative z-10">
+                                <input type="text" id="real-license-key" value="" readonly
+                                    class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 font-mono tracking-wider select-all">
+                                <button onclick="copyLicense()"
+                                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">
+                                    <i class="fa-regular fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subscription Status Card -->
+                    <div id="subscription-status-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-900 mb-1">Current Plan</h2>
+                                <div class="flex items-center gap-2 mb-4">
+                                    <div class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-bold uppercase tracking-wider"
+                                        id="plan-badge">FREE TIER</div>
+                                    <span class="text-xs text-green-600"><i class="fa-solid fa-check-circle"></i>
+                                        Active</span>
+                                </div>
+                            </div>
+                            <div class="text-right hidden sm:block">
+                                <div class="text-sm text-gray-500">Next Billing</div>
+                                <div class="font-bold text-gray-900" id="next-billing-date">--</div>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-500 text-sm mb-6" id="plan-summary-copy">Upgrade to Professional to unlock Offline Mode, Hardware
+                            Support, and Priority Support.</p>
+
+                        <button id="upgrade-btn" onclick="requestUpgrade()" title="Get Desktop Version" onclick="requestUpgrade()"
+                            class="w-full text-center py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5">&#128187; Get Desktop Version<i class="fa-solid fa-star mr-2"></i> Upgrade Verification
+                        </button>
+                    </div>
+
+                    <!-- Download Card -->
+                    <!-- Web Version Card -->
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6 shadow-sm">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <div class="inline-flex items-center gap-2 px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Free Web Access • Active
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">PharmaSOFT Web POS</h3>
+                                <p class="text-sm text-gray-600 mt-1 max-w-xl">
+                                    Launch the web application directly in your browser. Includes POS, Sales, Products, Inventory, and Reporting.
+                                </p>
+                            </div>
+                            <a href="http://localhost:5173" target="_blank"
+                                class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 shrink-0">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-base"></i> Open Web Version &rarr;
+                            </a>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-emerald-100 text-xs text-gray-500 flex flex-wrap gap-4">
+                            <span>Web URL: <a href="http://localhost:5173" target="_blank" class="font-mono text-emerald-700 font-bold hover:underline">http://localhost:5173</a></span>
+                            <span>Sign in with: username <code class="bg-white px-1.5 py-0.5 rounded border border-emerald-200 font-bold text-gray-800">rimen</code> (password: <code class="bg-white px-1.5 py-0.5 rounded border border-emerald-200 font-bold text-gray-800">123456</code>)</span>
+                        </div>
+                    </div>
+
+                    <div id="download-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 id="download-card-title" class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fa-brands fa-windows text-blue-500"></i> Download Software
+                        </h2>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a id="desktop-download-link" href="/downloads/PharmaSOFT%20Setup%200.0.0.exe" onclick="handleDesktopDownloadClick()"
+                                class="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
+                                <i class="fa-solid fa-download text-xl"></i>
+                                <div class="text-left">
+                                    <div id="desktop-download-link-label" class="text-sm">Download for Windows</div>
+                                    <div id="desktop-download-link-meta" class="text-xs opacity-75">v0.0.0 • 64-bit Installer</div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700 flex gap-2 items-start">
+                            <i class="fa-solid fa-circle-info mt-0.5"></i>
+                            <p id="download-note-copy"><strong>Note:</strong> Windows Defender might show a warning since this is a new app.
+                                Click "Run Anyway" to install.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-8">
+                    <!-- Profile Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 id="profile-card-title" class="font-bold text-gray-900 mb-4">Your Pharmacy Profile</h3>
+                        <form onsubmit="updateProfile(event)" class="space-y-4">
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 uppercase">Business Name</label>
+                                <input type="text" id="p-name"
+                                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm border p-2 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 uppercase">Contact Email</label>
+                                <input type="email" id="p-email"
+                                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm border p-2">
+                            </div>
+                            <button type="submit"
+                                class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-slate-900 hover:bg-slate-800">
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="onboarding-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4 gap-4">
+                            <div>
+                                <h3 class="font-bold text-gray-900">Getting Started</h3>
+                                <p class="text-sm text-gray-500">Track your web setup progress and next steps.</p>
+                            </div>
+                            <div class="text-right">
+                                <div id="onboarding-progress-text" class="text-sm font-semibold text-gray-900">0 / 0</div>
+                                <div class="text-xs text-gray-500">completed</div>
+                            </div>
+                        </div>
+                        <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
+                            <div id="onboarding-progress-bar" class="h-full bg-blue-600 rounded-full" style="width: 0%;"></div>
+                        </div>
+                        <div id="onboarding-list" class="space-y-3">
+                            <div class="text-sm text-gray-400">Loading onboarding tasks...</div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="font-bold text-gray-900 mb-4">Quick Resources</h3>
+                        <ul class="space-y-3">
+                            <li><a href="mailto:contact@pharmasoft.tn?subject=User Manual Request"
+                                    class="flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600"><i
+                                        class="fa-solid fa-book-open w-5"></i> User Manual</a></li>
+                            <li><a href="mailto:contact@pharmasoft.tn?subject=CNAM Import Help"
+                                    class="flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600"><i
+                                        class="fa-solid fa-file-import w-5"></i> How to import CNAM</a></li>
+                            <li><a href="mailto:contact@pharmasoft.tn?subject=Printer Setup Help"
+                                    class="flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600"><i
+                                        class="fa-solid fa-print w-5"></i> Printer Setup Guide</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: BILLING -->
+        <div id="view-billing" class="hidden space-y-8">
+            <!-- Free web plan banner -->
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-circle-check text-green-600"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-green-800">Web Version — Free Forever</div>
+                    <div class="text-sm text-green-700">Your PharmaSOFT web account is completely free. No billing, no renewal, no credit card required.</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="text-sm text-gray-500 mb-1">Current Plan</div>
+                    <div id="billing-plan" class="text-2xl font-bold text-green-600">Web — Free</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="text-sm text-gray-500 mb-1">Payment Status</div>
+                    <div id="billing-status" class="text-2xl font-bold text-green-600">No charge</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="text-sm text-gray-500 mb-1">Renewal Date</div>
+                    <div id="billing-renewal" class="text-2xl font-bold text-gray-400">N/A</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="billing-history-title" class="text-xl font-bold text-gray-900">Billing History</h2>
+                    <button onclick="markOnboardingTask('review_billing')" class="text-primary-600 text-sm font-medium hover:underline">Mark billing reviewed</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500 uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Date</th>
+                                <th class="px-6 py-3">Description</th>
+                                <th class="px-6 py-3">Amount</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3 text-right">Invoice</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billing-history-body" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">Loading billing history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: SUPPORT -->
+        <div id="view-support" class="hidden space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Ticket Form -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Open a Ticket</h2>
+                    <form class="space-y-4" onsubmit="submitTicket(event)">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                            <input type="text" id="ticket-subject" required
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 border p-2"
+                                placeholder="e.g. Printer not connecting">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="ticket-category"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 border p-2">
+                                <option value="technical">Technical Issue</option>
+                                <option value="billing">Billing Question</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea id="ticket-message" required rows="4"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 border p-2"
+                                placeholder="Describe the issue..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+                            <input type="file" id="ticket-attachments" multiple accept=".png,.jpg,.jpeg,.pdf,.txt"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 border p-2 bg-white">
+                            <p class="mt-1 text-xs text-gray-500">Up to 3 files, 2 MB each. Images, PDF, and TXT are supported.</p>
+                            <div id="ticket-attachments-preview" class="mt-3 hidden space-y-2"></div>
+                        </div>
+                        <button type="submit" id="ticket-submit-btn"
+                            class="w-full bg-slate-900 text-white py-2 px-4 rounded-lg hover:bg-slate-800 transition-colors">Submit
+                            Ticket</button>
+                    </form>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="space-y-6">
+                    <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                        <h3 class="text-blue-900 font-bold mb-2 flex items-center gap-2"><i
+                                class="fa-solid fa-phone"></i> Urgent Support</h3>
+                        <p class="text-blue-700 text-sm mb-4">Enterprise customers get 24/7 phone support.</p>
+                        <div class="text-xl font-bold text-blue-900">+216 71 000 000</div>
+                    </div>
+
+                    <!-- Ticket History Widget -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-900">My Support History</h3>
+                            <button onclick="fetchTickets()" class="text-xs text-primary-600 hover:underline"><i
+                                    class="fa-solid fa-rotate"></i> Refresh</button>
+                        </div>
+                        <div id="ticket-history-list" class="space-y-3 max-h-[300px] overflow-y-auto">
+                            <div class="text-center text-gray-400 text-sm py-8">Loading tickets...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CONTACT TO PURCHASE MODAL -->
+    <div id="payment-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closePayment()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center">
+            <button onclick="closePayment()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-desktop text-2xl text-amber-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Get the Desktop Version</h3>
+            <p class="text-gray-500 text-sm mb-6">The desktop version includes offline mode, receipt printer, barcode scanner integration and professional installation. Contact us to purchase — no online payment needed.</p>
+            <div class="flex flex-col gap-3">
+                <a href="https://wa.me/21600000000" target="_blank" rel="noopener"
+                    class="flex items-center justify-center gap-3 w-full py-3 px-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Contact via WhatsApp
+                </a>
+                <a href="mailto:contact@pharmasoft.tn?subject=Desktop Version Purchase"
+                    class="flex items-center justify-center gap-3 w-full py-3 px-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition-all">
+                    <i class="fa-solid fa-envelope"></i> Send an Email
+                </a>
+            </div>
+            <p class="text-xs text-gray-400 mt-4">We typically respond within a few hours (Mon–Sat, 9am–6pm)</p>
+        </div>
+    </div>
+
+    <!-- User Ticket Chat Modal -->
+    <div id="user-ticket-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+            onclick="closeUserTicketModal()">
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg h-[600px] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900" id="user-ticket-subject">Support Ticket</h3>
+                    <p class="text-xs text-gray-500">ID: #<span id="user-ticket-id">--</span></p>
+                </div>
+                <button onclick="closeUserTicketModal()" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="user-ticket-chat"
+                class="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-4 mb-4 space-y-4 border border-gray-100">
+                <!-- Messages -->
+            </div>
+
+            <!-- Reply Input -->
+            <form id="ticket-reply-form" onsubmit="replyToTicket(event)" class="border-t pt-4">
+                <input type="file" id="ticket-reply-attachments" multiple accept=".png,.jpg,.jpeg,.pdf,.txt"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-3 text-sm bg-white">
+                <div id="ticket-reply-attachments-preview" class="mb-3 hidden space-y-2"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="ticket-reply-input" placeholder="Type your reply..."
+                        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="image-lightbox" class="fixed inset-0 z-[70] hidden">
+        <div class="absolute inset-0 bg-slate-950/90" onclick="closeImageLightbox()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8">
+            <div class="relative w-full max-w-5xl">
+                <button onclick="closeImageLightbox()"
+                    class="absolute right-3 top-3 z-10 rounded-full bg-slate-900/80 px-3 py-2 text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl">
+                    <img id="image-lightbox-image" src="" alt="Attachment preview" class="max-h-[80vh] w-full object-contain bg-slate-950">
+                    <div id="image-lightbox-caption" class="border-t border-slate-800 px-4 py-3 text-sm text-slate-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === INITIALIZATION ===
+        const API_URL = '/api';
+        let user = JSON.parse(localStorage.getItem('pharmasoft_user') || '{}');
+        let allUserTickets = [];
+        let billingData = { invoices: [], currentPlan: 'free', paymentStatus: 'unpaid', renewalDate: null };
+        let onboardingData = { tasks: [], completedCount: 0, totalCount: 0, progressPercent: 0 };
+        let productCatalog = [];
+        let selectedProductId = 'pharmasoft';
+        const token = localStorage.getItem('pharmasoft_token');
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function formatDate(value, fallback = '--') {
+            if (!value) return fallback;
+            return new Date(value).toLocaleDateString();
+        }
+
+        function formatDateTime(value, fallback = '--') {
+            if (!value) return fallback;
+            return new Date(value).toLocaleString();
+        }
+
+        function formatCurrency(value) {
+            const n = Number(value || 0); return n.toLocaleString('fr-TN', {minimumFractionDigits:3, maximumFractionDigits:3}) + ' TND';
+        }
+
+        function formatFileSize(bytes) {
+            const numericBytes = Number(bytes || 0);
+            if (!numericBytes) return '0 B';
+            if (numericBytes >= 1024 * 1024) return `${(numericBytes / (1024 * 1024)).toFixed(1)} MB`;
+            if (numericBytes >= 1024) return `${Math.round(numericBytes / 1024)} KB`;
+            return `${numericBytes} B`;
+        }
+
+        function getProductAccess() {
+            const rawAccess = user.subscriptionMeta?.productAccess;
+            return rawAccess && typeof rawAccess === 'object' ? rawAccess : {};
+        }
+
+        function getAccessibleProducts() {
+            const access = getProductAccess();
+            return productCatalog.filter((product) => {
+                const productAccess = access[product.id];
+                return Boolean(productAccess?.web || productAccess?.desktopPurchased);
+            });
+        }
+
+        function getAvailableProducts() {
+            const activeIds = new Set(getAccessibleProducts().map((product) => product.id));
+            return productCatalog.filter((product) => !activeIds.has(product.id));
+        }
+
+        function getProductById(productId) {
+            return productCatalog.find((product) => product.id === productId) || null;
+        }
+
+        function getBillingInvoicesForProduct(productId) {
+            return (billingData.invoices || []).filter((invoice) => {
+                const invoiceProductId = invoice.productId || 'pharmasoft';
+                return invoiceProductId === productId;
+            });
+        }
+
+        function selectAccountProduct(productId) {
+            selectedProductId = productId;
+            renderProductsAccess();
+            renderDashboard();
+        }
+
+        async function launchProduct(productId) {
+            if (productId === 'pharmasoft') {
+                window.location.href = '/dashboard-user.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/products/${productId}/session`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error?.message || 'Unable to open product session');
+                }
+
+                if (data.data?.token && data.data?.user) {
+                    localStorage.setItem('auth_token', data.data.token);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
+                }
+
+                if (data.data?.launchUrl) {
+                    window.location.href = data.data.launchUrl;
+                }
+            } catch (error) {
+                console.error(error);
+                alert(`Unable to open ${productId}: ${error.message || 'Unknown error'}`);
+            }
+        }
+
+        function renderProductsAccess() {
+            const grid = document.getElementById('products-access-grid');
+            const badge = document.getElementById('product-count-badge');
+            if (!grid || !badge) return;
+
+            const products = getAccessibleProducts();
+            badge.innerText = `${products.length} active product${products.length === 1 ? '' : 's'}`;
+
+            if (!products.length) {
+                grid.innerHTML = '<div class="text-sm text-gray-400">No software products are active on this account yet.</div>';
+                return;
+            }
+
+            if (!products.some((product) => product.id === selectedProductId)) {
+                selectedProductId = products[0].id;
+            }
+
+            const access = getProductAccess();
+            grid.innerHTML = products.map((product) => {
+                const productAccess = access[product.id] || {};
+                const isActive = product.id === selectedProductId;
+                const invoices = getBillingInvoicesForProduct(product.id);
+                const latestInvoice = invoices[0] || null;
+                const statusParts = [];
+
+                if (productAccess.web) statusParts.push('Web active');
+                if (productAccess.desktopPurchased) statusParts.push('Desktop purchased');
+                if (!statusParts.length) statusParts.push('Account access active');
+
+                const webAppAction = `<a href="http://localhost:5173" target="_blank" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-500 shadow-sm transition"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Web Version</a>`;
+                const desktopAction = `<button onclick="event.stopPropagation(); document.getElementById('desktop-download-link').click()" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 transition"><i class="fa-solid fa-download"></i> Desktop App</button>`;
+                const billingAction = `<button onclick="event.stopPropagation(); switchTab('billing')" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"><i class="fa-solid fa-receipt"></i> Billing</button>`;
+
+                return `
+                    <div onclick="selectAccountProduct('${escapeHtml(product.id)}')" class="text-left rounded-2xl border p-4 transition-all cursor-pointer ${isActive ? 'border-blue-400 bg-blue-50 shadow-sm' : 'border-gray-200 bg-gray-50 hover:border-blue-300'}">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-base font-semibold text-gray-900">${escapeHtml(product.name)}</div>
+                                <div class="mt-1 text-xs uppercase tracking-wider text-gray-500">${escapeHtml(product.category)}</div>
+                            </div>
+                            <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold ${isActive ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 border border-slate-200'}">${isActive ? 'Selected' : 'Available'}</span>
+                        </div>
+                        <div class="mt-3 text-sm text-gray-600">${escapeHtml(statusParts.join(' • '))}</div>
+                        <div class="mt-2 text-xs text-gray-500">${latestInvoice ? `Latest invoice: ${escapeHtml(latestInvoice.description)} • ${formatCurrency(latestInvoice.amount)}` : 'No billing records yet for this product.'}</div>
+                        <div class="mt-4 flex flex-wrap gap-2">${webAppAction}${desktopAction}${billingAction}</div>
+                    </div>
+                `;
+            }).join('');
+
+            renderAvailableProducts();
+        }
+
+        function renderAvailableProducts() {
+            const section = document.getElementById('available-products-section');
+            const grid = document.getElementById('available-products-grid');
+            const badge = document.getElementById('available-product-count-badge');
+
+            if (!section || !grid || !badge) {
+                return;
+            }
+
+            const products = getAvailableProducts();
+            badge.innerText = `${products.length} available`;
+
+            if (!products.length) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            grid.innerHTML = products.map((product) => {
+                const canActivateFreeWeb = product.web?.pricing === 'free';
+                const primaryAction = canActivateFreeWeb
+                    ? `<button onclick="launchProduct('${escapeHtml(product.id)}')" class="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">Activate & Open</button>`
+                    : '<span class="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500 border border-slate-200">Purchase required</span>';
+                const secondaryAction = product.desktop?.demoPublic
+                    ? `<a href="/downloads/PharmaSOFT%20Setup%200.0.0.exe" class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50">Desktop demo</a>`
+                    : '';
+
+                return `
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-base font-semibold text-gray-900">${escapeHtml(product.name)}</div>
+                                <div class="mt-1 text-xs uppercase tracking-wider text-gray-500">${escapeHtml(product.category)}</div>
+                            </div>
+                            <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white text-slate-700 border border-slate-200">Not active</span>
+                        </div>
+                        <div class="mt-3 text-sm text-gray-600">Web: ${escapeHtml(product.web?.pricing || 'n/a')} • Desktop: ${escapeHtml(product.desktop?.pricing || 'n/a')}</div>
+                        <div class="mt-4 flex flex-wrap gap-2">${primaryAction}${secondaryAction}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getAttachmentTypeLabel(type) {
+            if (String(type || '').startsWith('image/')) return 'Image';
+            if (type === 'application/pdf') return 'PDF';
+            if (type === 'text/plain') return 'Text file';
+            return type || 'Attachment';
+        }
+
+        function getStatusBadge(status) {
+            const normalized = String(status || 'paid').toLowerCase();
+            if (normalized === 'unpaid') {
+                return '<span class="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold uppercase">Unpaid</span>';
+            }
+            if (normalized === 'failed') {
+                return '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold uppercase">Failed</span>';
+            }
+            if (normalized === 'manual') {
+                return '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold uppercase">Manual</span>';
+            }
+            if (normalized === 'pending') {
+                return '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold uppercase">Pending</span>';
+            }
+            return '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold uppercase">Paid</span>';
+        }
+
+        function buildAttachmentHref(rawHref) {
+            const href = String(rawHref || '');
+            if (!href || href.startsWith('data:')) {
+                return href || '#';
+            }
+
+            const normalized = href.replace(/^https?:\/\/[^/]+/i, '');
+            const match = normalized.match(/^\/(?:uploads\/tickets|api\/support\/attachments)\/(.+)$/i);
+            if (!match) {
+                return href;
+            }
+
+            const url = new URL(`/api/support/attachments/${match[1]}`, window.location.origin);
+            if (token) {
+                url.searchParams.set('token', token);
+            }
+
+            return `${url.pathname}${url.search}`;
+        }
+
+        function renderAttachmentLinks(attachments, variant = 'light') {
+            if (!attachments || attachments.length === 0) {
+                return '';
+            }
+
+            const isDark = variant === 'dark';
+            const cardClasses = isDark
+                ? 'rounded-xl border border-white/10 bg-white/5 p-3 text-white'
+                : 'rounded-xl border border-slate-200 bg-white p-3 text-slate-800';
+            const mutedClasses = isDark ? 'text-white/70' : 'text-slate-500';
+            const primaryActionClasses = isDark
+                ? 'inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white hover:bg-white/20'
+                : 'inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200';
+            const secondaryActionClasses = isDark
+                ? 'inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/20 px-3 py-2 text-xs font-medium text-emerald-100 hover:bg-emerald-500/30'
+                : 'inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100';
+
+            return `
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                    ${attachments.map((attachment) => `
+                        ${(() => {
+                            const rawHref = attachment.url || attachment.dataUrl || '#';
+                            const resolvedHref = buildAttachmentHref(rawHref);
+                            const href = escapeHtml(resolvedHref);
+                            const type = String(attachment.type || 'file');
+                            const isImage = type.startsWith('image/');
+                            const isPdf = type === 'application/pdf';
+                            const preview = isImage
+                                ? `<button type="button" onclick='openImageLightbox(${JSON.stringify(resolvedHref)}, ${JSON.stringify(attachment.name || 'Attachment preview')})' class="block w-full overflow-hidden rounded-lg border ${isDark ? 'border-white/10' : 'border-slate-200'}"><img src="${href}" alt="${escapeHtml(attachment.name)}" class="h-32 w-full object-cover transition-transform hover:scale-[1.02]"></button>`
+                                : `<div class="flex h-32 items-center justify-center rounded-lg border ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'} text-center"><div><i class="fa-solid ${isPdf ? 'fa-file-pdf' : 'fa-file-lines'} text-2xl ${isPdf ? (isDark ? 'text-red-300' : 'text-red-500') : (isDark ? 'text-sky-200' : 'text-sky-500')}"></i><div class="mt-2 text-xs ${mutedClasses}">${isPdf ? 'PDF preview available' : 'Attachment ready to open'}</div></div></div>`;
+                            const openLabel = isPdf ? 'Open PDF' : isImage ? 'Open image' : 'Open file';
+
+                            return `
+                                <div class="${cardClasses}">
+                                    ${preview}
+                                    <div class="mt-3">
+                                        <div class="break-all text-sm font-medium">${escapeHtml(attachment.name)}</div>
+                                        <div class="mt-1 text-xs ${mutedClasses}">${escapeHtml(getAttachmentTypeLabel(type))} • ${formatFileSize(attachment.size)}</div>
+                                    </div>
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        <a href="${href}" target="_blank" rel="noreferrer" class="${primaryActionClasses}">
+                                            <i class="fa-solid fa-up-right-from-square"></i>
+                                            <span>${openLabel}</span>
+                                        </a>
+                                        <a href="${href}" download="${escapeHtml(attachment.name)}" class="${secondaryActionClasses}">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>Download</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        })()}
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getSelectedFiles(inputId) {
+            return Array.from(document.getElementById(inputId)?.files || []);
+        }
+
+        function renderPendingAttachments(inputId, previewId) {
+            const preview = document.getElementById(previewId);
+            const files = getSelectedFiles(inputId);
+
+            if (!preview) return;
+
+            if (files.length === 0) {
+                preview.innerHTML = '';
+                preview.classList.add('hidden');
+                return;
+            }
+
+            preview.classList.remove('hidden');
+            preview.innerHTML = files.map((file, index) => `
+                <div class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                    <div>
+                        <div class="font-medium text-slate-900">${escapeHtml(file.name)}</div>
+                        <div class="text-xs text-slate-500">${escapeHtml(getAttachmentTypeLabel(file.type))} • ${formatFileSize(file.size)}</div>
+                    </div>
+                    <button type="button" onclick="removePendingAttachment('${inputId}', '${previewId}', ${index})" class="rounded-lg bg-white px-3 py-2 text-xs font-medium text-red-600 shadow-sm hover:bg-red-50">
+                        Remove
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removePendingAttachment(inputId, previewId, indexToRemove) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const nextFiles = new DataTransfer();
+            getSelectedFiles(inputId).forEach((file, index) => {
+                if (index !== indexToRemove) {
+                    nextFiles.items.add(file);
+                }
+            });
+
+            input.files = nextFiles.files;
+            renderPendingAttachments(inputId, previewId);
+        }
+
+        function parseTicketResponses(ticket) {
+            if (!ticket?.responses) return [];
+
+            try {
+                return typeof ticket.responses === 'string' ? JSON.parse(ticket.responses) : ticket.responses;
+            } catch (error) {
+                console.error('Failed to parse ticket responses', error);
+                return [];
+            }
+        }
+
+        function getInitialTicketEntry(ticket) {
+            return parseTicketResponses(ticket).find((entry) => entry.isInitial) || null;
+        }
+
+        async function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function collectAttachments(inputId) {
+            const files = getSelectedFiles(inputId);
+
+            if (files.length === 0) {
+                return [];
+            }
+
+            if (files.length > 3) {
+                throw new Error('You can attach up to 3 files per message');
+            }
+
+            return Promise.all(files.map(async (file) => {
+                if (file.size > 2 * 1024 * 1024) {
+                    throw new Error(`${file.name} is larger than 2 MB`);
+                }
+
+                return {
+                    name: file.name,
+                    type: file.type || 'application/octet-stream',
+                    size: file.size,
+                    dataUrl: await readFileAsDataUrl(file)
+                };
+            }));
+        }
+
+        function clearAttachmentInput(inputId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = '';
+            }
+
+            const previewId = {
+                'ticket-attachments': 'ticket-attachments-preview',
+                'ticket-reply-attachments': 'ticket-reply-attachments-preview'
+            }[inputId];
+
+            if (previewId) {
+                renderPendingAttachments(inputId, previewId);
+            }
+        }
+
+        function openImageLightbox(src, label) {
+            document.getElementById('image-lightbox-image').src = src;
+            document.getElementById('image-lightbox-caption').textContent = label || 'Attachment preview';
+            document.getElementById('image-lightbox').classList.remove('hidden');
+        }
+
+        function closeImageLightbox() {
+            document.getElementById('image-lightbox').classList.add('hidden');
+            document.getElementById('image-lightbox-image').src = '';
+        }
+
+        function handleDesktopDownloadClick() {
+            markOnboardingTask('download_desktop');
+        }
+
+        if (!token) {
+            window.location.href = '/index.html';
+        }
+
+        async function syncUser() {
+            try {
+                const res = await fetch(`${API_URL}/auth/verify`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.success && data.user) {
+                    user = data.user;
+                    localStorage.setItem('pharmasoft_user', JSON.stringify(user));
+                    renderDashboard();
+                }
+            } catch (e) {
+                console.error('Sync failed', e);
+            }
+        }
+
+        function renderSelectedProductWorkspace() {
+            const product = getProductById(selectedProductId);
+            const access = getProductAccess()[selectedProductId] || {};
+            const invoices = getBillingInvoicesForProduct(selectedProductId);
+            const latestInvoice = invoices[0] || null;
+
+            const subscriptionCard = document.getElementById('subscription-status-card');
+            const licenseSection = document.getElementById('license-section');
+            const onboardingCard = document.getElementById('onboarding-card');
+            const upgradeBtn = document.getElementById('upgrade-btn');
+
+            if (!product) {
+                if (subscriptionCard) subscriptionCard.classList.add('hidden');
+                if (licenseSection) licenseSection.classList.add('hidden');
+                if (onboardingCard) onboardingCard.classList.add('hidden');
+                return;
+            }
+
+            if (subscriptionCard) subscriptionCard.classList.remove('hidden');
+
+            const isPharmasoft = product.id === 'pharmasoft';
+            const productPlan = latestInvoice?.planId || access.planId || 'free';
+            const productPaymentStatus = latestInvoice?.status || billingData.paymentStatus || 'unpaid';
+            const productRenewalDate = latestInvoice?.nextBillingDate || billingData.renewalDate || '--';
+
+            document.getElementById('billing-plan').innerText = String(productPlan || 'free').toUpperCase();
+            document.getElementById('billing-status').innerText = String(productPaymentStatus || 'unpaid').toUpperCase();
+            document.getElementById('billing-renewal').innerText = productRenewalDate && productRenewalDate !== '--' ? formatDate(productRenewalDate) : '--';
+            document.getElementById('billing-history-title').innerText = `${product.name} Billing History`;
+            document.getElementById('profile-card-title').innerText = `${product.name} Account Profile`;
+
+            if (isPharmasoft) {
+                if (licenseSection) licenseSection.classList.remove('hidden');
+                if (onboardingCard) onboardingCard.classList.remove('hidden');
+                if (upgradeBtn) upgradeBtn.classList.remove('hidden');
+
+                const tier = (user.subscriptionTier || 'free').toLowerCase();
+                const isLifetime = (latestInvoice?.description || user.subscriptionMeta?.lastInvoice?.description || '').includes('Lifetime');
+                const badge = document.getElementById('plan-badge');
+
+                if (badge) {
+                    if (tier === 'professional' || tier === 'enterprise') {
+                        if (isLifetime) {
+                            badge.innerText = 'LIFETIME ACCESS 💎';
+                            badge.className = 'px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold uppercase tracking-wider border border-purple-200 shadow-sm';
+                        } else {
+                            badge.innerText = tier.toUpperCase();
+                            badge.className = 'px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold uppercase tracking-wider';
+                        }
+
+                        document.getElementById('license-locked').classList.add('hidden');
+                        document.getElementById('license-unlocked').classList.remove('hidden');
+                        document.getElementById('real-license-key').value = user.licenseKey || 'KEY-HIDDEN-PLEASE-RELOGIN';
+                    } else {
+                        badge.innerText = 'WEB — ACTIVE';
+                        badge.className = 'px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold uppercase tracking-wider';
+                        document.getElementById('license-locked').classList.remove('hidden');
+                        document.getElementById('license-unlocked').classList.add('hidden');
+                    }
+                }
+
+                document.getElementById('next-billing-date').innerText = billingData.renewalDate ? formatDate(billingData.renewalDate) : '--';
+                document.getElementById('plan-summary-copy').innerText = tier === 'free'
+                    ? 'The web version is free forever. To get offline mode, receipt printing, and barcode scanning, contact us for the Desktop version.'
+                    : `Your ${tier} plan is active. Review your invoice history and renewal schedule below.`;
+
+                document.getElementById('download-card-title').innerHTML = '<i class="fa-brands fa-windows text-blue-500"></i> Download PharmaSOFT';
+                document.getElementById('desktop-download-link').href = '/downloads/PharmaSOFT%20Setup%200.0.0.exe';
+                document.getElementById('desktop-download-link-label').innerText = 'Download for Windows';
+                document.getElementById('desktop-download-link-meta').innerText = 'Latest version • 64-bit Installer';
+                document.getElementById('download-note-copy').innerHTML = '<strong>Note:</strong> Windows Defender might show a warning since this is a new app. Click "Run Anyway" to install.';
+                return;
+            }
+
+            if (licenseSection) licenseSection.classList.add('hidden');
+            if (onboardingCard) onboardingCard.classList.add('hidden');
+            if (upgradeBtn) upgradeBtn.classList.add('hidden');
+
+            document.getElementById('plan-badge').innerText = access.desktopPurchased ? 'PURCHASED' : 'ACCESS GRANTED';
+            document.getElementById('plan-badge').className = 'px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-bold uppercase tracking-wider';
+            document.getElementById('next-billing-date').innerText = latestInvoice?.nextBillingDate ? formatDate(latestInvoice.nextBillingDate) : '--';
+            document.getElementById('plan-summary-copy').innerText = `${product.name} is active on this account. Use the product card above to open the web workspace or download the current desktop build.`;
+
+            document.getElementById('download-card-title').innerHTML = '<i class="fa-brands fa-windows text-blue-500"></i> Download PharmaSOFT';
+            document.getElementById('desktop-download-link').href = '/downloads/PharmaSOFT%20Setup%200.0.0.exe';
+            document.getElementById('desktop-download-link-label').innerText = 'Download desktop build';
+            document.getElementById('desktop-download-link-meta').innerText = 'Windows installer • v0.0.0';
+            document.getElementById('download-note-copy').innerHTML = '<strong>Note:</strong> Contact us to get the PharmaSOFT desktop installer for your Windows PC.';
+        }
+
+        function renderDashboard() {
+            document.getElementById('user-name').innerText = user.name || 'User';
+            document.getElementById('p-name').value = user.pharmacyName || user.name || 'My Pharmacy';
+            document.getElementById('p-email').value = user.email || '';
+
+            renderProductsAccess();
+            renderSelectedProductWorkspace();
+            renderBillingHistory();
+            renderOnboarding();
+        }
+
+        function renderBillingHistory() {
+            const tbody = document.getElementById('billing-history-body');
+            const invoices = getBillingInvoicesForProduct(selectedProductId);
+
+            if (invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No billing records yet. Your next upgrade will appear here.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = invoices.map((invoice) => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 text-gray-900 font-medium">${escapeHtml(invoice.date)}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-semibold text-gray-900">${escapeHtml(invoice.description)}</div>
+                        <div class="text-xs text-gray-500">Source: ${escapeHtml(invoice.source || 'self-service')}</div>
+                    </td>
+                    <td class="px-6 py-4 font-bold text-blue-700">${formatCurrency(invoice.amount)}</td>
+                    <td class="px-6 py-4">${getStatusBadge(invoice.status)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="viewInvoice('${escapeHtml(invoice.id)}', '${escapeHtml(invoice.date)}', '${escapeHtml(invoice.amount)}', '${escapeHtml(invoice.description)}')" class="text-primary-600 hover:text-primary-800 font-medium text-xs inline-flex items-center justify-end gap-1">
+                            <i class="fa-solid fa-file-invoice"></i> View Invoice
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function fetchBillingHistory() {
+            try {
+                const res = await fetch(`${API_URL}/billing/history`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    billingData = data.data;
+                    renderBillingHistory();
+                    renderDashboard();
+                }
+            } catch (error) {
+                console.error('Failed to fetch billing history', error);
+            }
+        }
+
+        function renderOnboarding() {
+            const progressText = document.getElementById('onboarding-progress-text');
+            const progressBar = document.getElementById('onboarding-progress-bar');
+            const list = document.getElementById('onboarding-list');
+
+            progressText.innerText = `${onboardingData.completedCount} / ${onboardingData.totalCount || 0}`;
+            progressBar.style.width = `${onboardingData.progressPercent || 0}%`;
+
+            if (!onboardingData.tasks || onboardingData.tasks.length === 0) {
+                list.innerHTML = '<div class="text-sm text-gray-400">No onboarding tasks available.</div>';
+                return;
+            }
+
+            list.innerHTML = onboardingData.tasks.map((task) => {
+                const iconClass = task.completed ? 'text-green-600' : 'text-slate-400';
+                const cardClass = task.completed ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50';
+                const button = task.completed
+                    ? '<span class="text-xs font-semibold text-green-700 bg-green-100 px-3 py-1 rounded-full">Done</span>'
+                    : task.id === 'review_billing'
+                        ? '<button onclick="switchTab(\'billing\')" class="text-xs font-semibold text-blue-700 bg-blue-100 px-3 py-1 rounded-full hover:bg-blue-200">Open billing</button>'
+                        : task.id === 'download_desktop'
+                            ? '<button onclick="document.getElementById(\'desktop-download-link\').click()" class="text-xs font-semibold text-blue-700 bg-blue-100 px-3 py-1 rounded-full hover:bg-blue-200">Download app</button>'
+                            : task.id === 'contact_support'
+                                ? '<button onclick="switchTab(\'support\')" class="text-xs font-semibold text-blue-700 bg-blue-100 px-3 py-1 rounded-full hover:bg-blue-200">Open support</button>'
+                                : task.id === 'unlock_pro'
+                                    ? '<button onclick="requestUpgrade()" class="text-xs font-semibold text-blue-700 bg-blue-100 px-3 py-1 rounded-full hover:bg-blue-200">Upgrade</button>'
+                                    : '<span class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">Automatic</span>';
+
+                return `
+                    <div class="flex items-start justify-between gap-4 rounded-xl border ${cardClass} px-4 py-3">
+                        <div class="flex gap-3">
+                            <div class="mt-0.5 ${iconClass}">
+                                <i class="fa-solid ${task.completed ? 'fa-circle-check' : 'fa-circle'}"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">${escapeHtml(task.title)}</div>
+                                <div class="text-sm text-gray-500">${escapeHtml(task.description)}</div>
+                            </div>
+                        </div>
+                        <div>${button}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function fetchOnboarding() {
+            try {
+                const res = await fetch(`${API_URL}/onboarding`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    onboardingData = data.data;
+                    renderOnboarding();
+                }
+            } catch (error) {
+                console.error('Failed to fetch onboarding data', error);
+            }
+        }
+
+        async function markOnboardingTask(taskId) {
+            if (!taskId) return;
+
+            try {
+                const res = await fetch(`${API_URL}/onboarding/tasks/${taskId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    onboardingData = data.data;
+                    renderOnboarding();
+                }
+            } catch (error) {
+                console.error('Failed to update onboarding task', error);
+            }
+        }
+
+        // === TABS LOGIC ===
+        function switchTab(tabId) {
+            ['overview', 'billing', 'support'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${t}`);
+                btn.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+                btn.classList.add('text-gray-500');
+            });
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const btn = document.getElementById(`tab-${tabId}`);
+            btn.classList.add('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+            btn.classList.remove('text-gray-500');
+
+            if (tabId === 'billing') {
+                markOnboardingTask('review_billing');
+            }
+        }
+
+        // === PAYMENT FLOW ===
+        let currentPlanPrice = 29;
+        let pharmasoftPlans = { monthly: 29, yearly: 290, lifetime: 999 };
+
+        function requestUpgrade() {
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePayment() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function updatePharmasoftPricing() {
+            const product = productCatalog.find((entry) => entry.id === 'pharmasoft');
+            if (!product || !Array.isArray(product.plans)) {
+                return;
+            }
+
+            product.plans.forEach((plan) => {
+                pharmasoftPlans[plan.planId] = Number(plan.amount || 0);
+                const priceNode = document.getElementById(`plan-${plan.planId}-price`);
+                if (priceNode) {
+                    priceNode.innerText = `$${Number(plan.amount || 0)}`;
+                }
+            });
+
+            selectPlan(document.getElementById('selected-plan-id').value || 'monthly');
+        }
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${API_URL}/products`);
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error?.message || 'Failed to load products');
+                }
+
+                productCatalog = Array.isArray(data.data) ? data.data : [];
+                updatePharmasoftPricing();
+                renderDashboard();
+            } catch (error) {
+                console.error('Failed to load product catalog:', error);
+            }
+        }
+
+        function selectPlan(planId, price = null) {
+            const resolvedPrice = price ?? pharmasoftPlans[planId] ?? 29;
+            // Update UI
+            ['monthly', 'yearly', 'lifetime'].forEach(id => {
+                const el = document.getElementById('plan-' + id);
+                if (id === planId) {
+                    el.className = "cursor-pointer border-2 border-primary-600 bg-blue-50 rounded-xl p-3 text-center transition-all relative overflow-hidden";
+                } else {
+                    el.className = "cursor-pointer border-2 border-gray-200 hover:border-blue-300 rounded-xl p-3 text-center transition-all relative";
+                }
+            });
+
+            // Update State
+            document.getElementById('selected-plan-id').value = planId;
+            document.getElementById('selected-plan-price').value = resolvedPrice;
+
+            // Update Button
+            document.getElementById('pay-btn').innerText = `Pay $${resolvedPrice} & Upgrade`;
+            currentPlanPrice = resolvedPrice;
+        }
+
+        async function processPayment(e) {
+            e.preventDefault();
+            const btn = document.getElementById('pay-btn');
+            const originalText = btn.innerText;
+            const planId = document.getElementById('selected-plan-id').value;
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            try {
+                // Call Backend
+                const res = await fetch(`${API_URL}/subscription/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        productId: 'pharmasoft',
+                        planId: planId, // 'monthly', 'yearly', 'lifetime'
+                        paymentMethod: 'card_mock'
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('✅ Payment Successful! Features Unlocked.');
+
+                    // SAVE NEW STATE
+                    user.subscriptionTier = 'professional';
+                    user.licenseKey = data.data.licenseKey || 'PRO-KEY-GENERATED';
+
+                    if (data.data.invoice) {
+                        if (!user.subscriptionMeta) user.subscriptionMeta = {};
+                        user.subscriptionMeta.lastInvoice = data.data.invoice;
+                    }
+
+                    localStorage.setItem('pharmasoft_user', JSON.stringify(user));
+
+                    // Reload to show unlocked state
+                    window.location.reload();
+                } else {
+                    throw new Error(data.error?.message || 'Payment failed');
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert('❌ Payment Failed: ' + error.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // === UTILS ===
+        function copyLicense() {
+            const key = document.getElementById('real-license-key').value;
+            navigator.clipboard.writeText(key);
+            alert("License Key Copied!");
+        }
+
+        async function updateProfile(e) {
+            e.preventDefault();
+            const pharmacyName = document.getElementById('p-name').value.trim();
+            const email = document.getElementById('p-email').value.trim();
+
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ pharmacyName, email })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error?.message || data.error || 'Failed to update profile');
+                }
+
+                user = data.data?.user || user;
+                localStorage.setItem('pharmasoft_user', JSON.stringify(user));
+                renderDashboard();
+                fetchOnboarding();
+                alert('✅ Profile updated!');
+            } catch (error) {
+                console.error(error);
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        // === SUPPORT LOGIC ===
+        async function submitTicket(e) {
+            e.preventDefault();
+            const btn = document.getElementById('ticket-submit-btn');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
+            const subject = document.getElementById('ticket-subject').value;
+            const category = document.getElementById('ticket-category').value;
+            const message = document.getElementById('ticket-message').value;
+
+            try {
+                const attachments = await collectAttachments('ticket-attachments');
+                const res = await fetch(`${API_URL}/support/tickets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ subject, category, message, attachments })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('✅ Ticket Created! ID: ' + data.data.id);
+                    document.getElementById('ticket-subject').value = '';
+                    document.getElementById('ticket-message').value = '';
+                    clearAttachmentInput('ticket-attachments');
+                    fetchTickets(); // Refresh list
+                    fetchOnboarding();
+                } else {
+                    throw new Error(data.error?.message || 'Failed to submit');
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function fetchTickets() {
+            const list = document.getElementById('ticket-history-list');
+            try {
+                const res = await fetch(`${API_URL}/support/tickets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success && data.data) {
+                    allUserTickets = data.data; // Store
+
+                    if (data.data.length > 0) {
+                        list.innerHTML = data.data.map(t => {
+                            const initialEntry = getInitialTicketEntry(t);
+                            const attachmentCount = initialEntry?.attachments?.length || 0;
+
+                            return `
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer" onclick="openUserTicketModal(${t.id})">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="font-bold text-gray-900 text-sm line-clamp-1">${escapeHtml(t.subject)}</h4>
+                                    <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold ${t.status === 'open' ? 'bg-blue-100 text-blue-700' :
+                                t.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                            }">${escapeHtml(t.status)}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-2 mb-2">${escapeHtml(t.message)}</p>
+                                <div class="text-[10px] text-gray-400 flex justify-between items-center">
+                                    <span>#${t.id} • ${escapeHtml(t.category)}${attachmentCount ? ` • ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}` : ''}</span>
+                                    <span class="flex items-center gap-2">
+                                        ${new Date(t.createdAt).toLocaleDateString()}
+                                        <i class="fa-solid fa-chevron-right text-gray-300"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                        }).join('');
+                    } else {
+                        list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">No tickets found.</div>';
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<div class="text-center text-red-400 text-sm py-4">Failed to load tickets.</div>';
+            }
+        }
+
+        let currentTicketId = null;
+
+        function openUserTicketModal(id) {
+            currentTicketId = id;
+            const ticket = allUserTickets.find(t => t.id === id);
+            if (!ticket) return;
+
+            document.getElementById('user-ticket-id').innerText = ticket.id;
+            document.getElementById('user-ticket-subject').innerText = ticket.subject;
+            const chat = document.getElementById('user-ticket-chat');
+            const initialEntry = getInitialTicketEntry(ticket);
+
+            let html = `
+                <div class="flex flex-col gap-1 items-end">
+                    <div class="bg-blue-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm max-w-[85%]">
+                        <p class="text-sm">${escapeHtml(ticket.message)}</p>
+                        ${renderAttachmentLinks(initialEntry?.attachments, 'dark')}
+                    </div>
+                    <span class="text-[10px] text-gray-400 pr-1">You • ${formatDateTime(ticket.createdAt)}</span>
+                </div>
+            `;
+
+            parseTicketResponses(ticket)
+                .filter((response) => !response.isInitial)
+                .forEach((response) => {
+                    const isAdmin = response.sender === 'admin';
+                    const isUser = response.sender === 'user';
+                    const align = isUser ? 'items-end' : 'items-start';
+                    const bg = isUser ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none';
+                    const name = isUser ? 'You' : response.name || 'Support Agent';
+
+                    html += `
+                        <div class="flex flex-col gap-1 ${align}">
+                            <div class="${bg} p-3 rounded-lg shadow-sm max-w-[85%]">
+                                <p class="text-sm">${escapeHtml(response.message || '(Attachment)')}</p>
+                                ${renderAttachmentLinks(response.attachments, isUser ? 'dark' : 'light')}
+                            </div>
+                            <span class="text-[10px] text-gray-400 ${isUser ? 'pr-1' : 'pl-1'}">
+                                ${escapeHtml(name)} • ${formatDateTime(response.date)}
+                            </span>
+                        </div>`;
+                });
+
+            chat.innerHTML = html;
+            document.getElementById('user-ticket-modal').classList.remove('hidden');
+
+            // Scroll to bottom
+            setTimeout(() => {
+                chat.scrollTop = chat.scrollHeight;
+            }, 100);
+        }
+
+        function closeUserTicketModal() {
+            document.getElementById('user-ticket-modal').classList.add('hidden');
+            currentTicketId = null;
+        }
+
+        async function replyToTicket(e) {
+            e.preventDefault();
+            if (!currentTicketId) return;
+
+            const input = document.getElementById('ticket-reply-input');
+            const message = input.value.trim();
+
+            const btn = e.target.querySelector('button');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const attachments = await collectAttachments('ticket-reply-attachments');
+                if (!message && attachments.length === 0) {
+                    throw new Error('Add a message or at least one attachment');
+                }
+                const res = await fetch(`${API_URL}/support/tickets/${currentTicketId}/reply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ message, attachments })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Server returned ${res.status}. Please restart the backend server.`);
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    input.value = ''; // Clear input
+                    clearAttachmentInput('ticket-reply-attachments');
+
+                    // Update local data
+                    const idx = allUserTickets.findIndex(t => t.id === currentTicketId);
+                    if (idx !== -1) {
+                        allUserTickets[idx] = data.data; // Update ticket with new responses
+                    }
+
+                    // Re-render chat
+                    openUserTicketModal(currentTicketId);
+                } else {
+                    alert('Failed to send reply: ' + (data.error?.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error sending reply');
+            } finally {
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+            }
+        }
+
+        // Auto-fetch tickets
+        fetchTickets();
+
+        document.getElementById('ticket-attachments')?.addEventListener('change', () => {
+            renderPendingAttachments('ticket-attachments', 'ticket-attachments-preview');
+        });
+
+        document.getElementById('ticket-reply-attachments')?.addEventListener('change', () => {
+            renderPendingAttachments('ticket-reply-attachments', 'ticket-reply-attachments-preview');
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeImageLightbox();
+            }
+        });
+
+        // === INVOICE LOGIC ===
+        function viewInvoice(id, date, amount, description) {
+            // Default params for old mocks
+            const desc = description || 'Professional Plan (Monthly)';
+            const amt = amount || '29.00';
+
+            const params = new URLSearchParams({
+                id: id,
+                date: date,
+                name: user.pharmacyName || user.name || 'My Pharmacy',
+                email: user.email || '',
+                key: user.licenseKey || 'PRO-PENDING',
+                amount: amt,
+                desc: desc
+            });
+            window.open('/invoice.html?' + params.toString(), '_blank');
+        }
+
+        function logout() {
+            localStorage.removeItem('pharmasoft_token');
+            localStorage.removeItem('pharmasoft_user');
+            localStorage.removeItem('admin_token');
+            window.location.href = '/index.html';
+        }
+
+        // Initial Render
+        fetchProducts();
+        renderDashboard();
+        // Background Sync
+        syncUser();
+        fetchBillingHistory();
+        fetchOnboarding();
+
+        // === NOTIFICATION LOGIC ===
+        let isNotifOpen = false;
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notif-dropdown');
+            isNotifOpen = !isNotifOpen;
+            if (isNotifOpen) {
+                dropdown.classList.remove('hidden');
+                fetchNotifications(); // Refresh on open
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (event) {
+            const dropdown = document.getElementById('notif-dropdown');
+            const button = document.querySelector('button[onclick="toggleNotifications()"]');
+
+            if (isNotifOpen && !dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.classList.add('hidden');
+                isNotifOpen = false;
+            }
+        });
+
+        async function fetchNotifications() {
+            try {
+                const res = await fetch(`${API_URL}/notifications`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const { notifications, unreadCount } = data.data;
+                    updateBadge(unreadCount);
+                    renderNotifications(notifications);
+                }
+            } catch (e) {
+                console.error('Failed to fetch notifications', e);
+            }
+        }
+
+        function updateBadge(count) {
+            const badge = document.getElementById('notif-badge');
+            if (count > 0) {
+                badge.innerText = count > 9 ? '9+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderNotifications(items) {
+            const list = document.getElementById('notif-list');
+            if (items.length === 0) {
+                list.innerHTML = '<div class="p-8 text-center text-gray-400 text-xs">No notifications</div>';
+                return;
+            }
+
+            list.innerHTML = items.map(n => `
+                <div class="p-3 hover:bg-gray-50 flex gap-3 transition-colors cursor-pointer ${n.read ? 'opacity-60' : 'bg-blue-50/50'}" onclick="handleNotificationClick(${n.id}, '${n.link || ''}')">
+                    <div class="mt-1">
+                        <div class="w-2 h-2 rounded-full ${n.read ? 'bg-gray-300' : 'bg-blue-500'}"></div>
+                    </div>
+                    <div class="flex-1">
+                        <h5 class="text-sm font-medium text-gray-900 ${n.read ? '' : 'font-bold'}">${n.title}</h5>
+                        <p class="text-xs text-gray-500 line-clamp-2 mt-0.5">${n.message}</p>
+                        <span class="text-[10px] text-gray-400 mt-1 block">${new Date(n.createdAt).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleNotificationClick(id, link) {
+            // Mark as read
+            try {
+                await fetch(`${API_URL}/notifications/${id}/read`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                fetchNotifications(); // Refresh badge
+            } catch (e) { console.error(e); }
+
+            // Action
+            if (link) {
+                if (link.match(/^\d+$/)) {
+                    // It is a ticket ID
+                    switchTab('support');
+                    // Find the ticket in the loaded list and open modal
+                    // If tickets not loaded, we might need to fetch them
+                    if (allUserTickets.length === 0) {
+                        await fetchTickets();
+                    }
+                    openUserTicketModal(parseInt(link));
+                } else {
+                    window.location.href = link;
+                }
+            }
+        }
+
+        async function markAllRead() {
+            try {
+                await fetch(`${API_URL}/notifications/read-all`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                fetchNotifications();
+            } catch (e) { console.error(e); }
+        }
+
+        // Poll for notifications every 30 seconds
+        setInterval(fetchNotifications, 30000);
+        // Initial fetch
+        fetchNotifications();
+    </script>
+</body>
+
+</html>

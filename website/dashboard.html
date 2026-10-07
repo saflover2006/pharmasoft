@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: Inter, "Segoe UI", sans-serif;
+        }
+
+        main {
+            max-width: 32rem;
+            padding: 2rem;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 1rem;
+            background: rgba(15, 23, 42, 0.88);
+            text-align: center;
+        }
+
+        a {
+            color: #38bdf8;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>Dashboard Updated</h1>
+        <p>The legacy analytics page has been retired. Redirecting you to the current PharmaSOFT experience.</p>
+        <p><a id="fallback-link" href="/index.html">Continue</a></p>
+    </main>
+    <script>
+        const storedUser = JSON.parse(localStorage.getItem('pharmasoft_user') || 'null');
+        const hasAdminToken = Boolean(localStorage.getItem('admin_token'));
+        const hasUserToken = Boolean(localStorage.getItem('pharmasoft_token'));
+        const target = hasAdminToken || storedUser?.username === 'superadmin'
+            ? '/admin-pro.html'
+            : hasUserToken
+                ? '/dashboard-user.html'
+                : '/index.html';
+
+        document.getElementById('fallback-link').href = target;
+        document.getElementById('fallback-link').textContent = `Continue to ${target}`;
+        window.location.replace(target);
+    </script>
+</body>
+
+</html>

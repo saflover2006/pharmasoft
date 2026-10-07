@@ -36,24 +36,41 @@ function log(message, type = 'info') {
     fs.appendFileSync(logFile, `[${timestamp}] [${type.toUpperCase()}] ${message}\n`);
 }
 
-function downloadFile(url, dest) {
+function downloadFile(url, dest, retries = 3) {
     return new Promise((resolve, reject) => {
         log(`Downloading from: ${url}`);
 
         const protocol = url.startsWith('https') ? https : http;
         const file = fs.createWriteStream(dest);
 
-        protocol.get(url, (response) => {
+        const options = url.startsWith('https') ? {
+            rejectUnauthorized: false, // Bypass SSL certificate verification
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        } : {};
+
+        const request = protocol.get(url, options, (response) => {
             // Handle redirects
             if (response.statusCode === 302 || response.statusCode === 301) {
                 file.close();
-                fs.unlinkSync(dest);
-                return downloadFile(response.headers.location, dest).then(resolve).catch(reject);
+                if (fs.existsSync(dest)) fs.unlinkSync(dest);
+                return downloadFile(response.headers.location, dest, retries).then(resolve).catch(reject);
             }
 
             if (response.statusCode !== 200) {
                 file.close();
-                fs.unlinkSync(dest);
+                if (fs.existsSync(dest)) fs.unlinkSync(dest);
+
+                // Retry on failure
+                if (retries > 0) {
+                    log(`Download failed with status ${response.statusCode}, retrying... (${retries} attempts left)`, 'warning');
+                    setTimeout(() => {
+                        downloadFile(url, dest, retries - 1).then(resolve).catch(reject);
+                    }, 2000);
+                    return;
+                }
+
                 return reject(new Error(`Download failed: ${response.statusCode}`));
             }
 
@@ -64,10 +81,30 @@ function downloadFile(url, dest) {
                 log(`Downloaded to: ${dest}`, 'success');
                 resolve(dest);
             });
-        }).on('error', (err) => {
+        });
+
+        request.on('error', (err) => {
             file.close();
-            fs.unlinkSync(dest);
+            if (fs.existsSync(dest)) fs.unlinkSync(dest);
+
+            // Retry on error
+            if (retries > 0) {
+                log(`Download error: ${err.message}, retrying... (${retries} attempts left)`, 'warning');
+                setTimeout(() => {
+                    downloadFile(url, dest, retries - 1).then(resolve).catch(reject);
+                }, 2000);
+                return;
+            }
+
             reject(err);
+        });
+
+        // Set timeout
+        request.setTimeout(30000, () => {
+            request.abort();
+            file.close();
+            if (fs.existsSync(dest)) fs.unlinkSync(dest);
+            reject(new Error('Download timeout'));
         });
     });
 }

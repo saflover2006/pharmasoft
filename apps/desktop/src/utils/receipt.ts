@@ -34,7 +34,7 @@ export interface ReceiptConfig {
 }
 
 const DEFAULT_CONFIG: ReceiptConfig = {
-  pharmacyName: 'PharmaBest',
+  pharmacyName: 'PharmaSOFT',
   address: 'Tunis, Tunisia',
   phone: '+216 XX XXX XXX',
   taxId: 'TN123456789',
@@ -267,7 +267,7 @@ export function generateReceiptHTML(
     <div class="footer">
       <div>${config.footer}</div>
       <div style="margin-top: 10px; font-size: 10px;">
-        Powered by PharmaBest POS
+        Powered by PharmaSOFT POS
       </div>
     </div>
   </div>

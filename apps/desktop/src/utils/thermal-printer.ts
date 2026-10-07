@@ -1,5 +1,6 @@
 import { formatPrice } from './calculations';
 import { VAT_RATE } from '../constants';
+import type { ReceiptConfig } from './receipt';
 
 export interface ThermalReceiptData {
     saleId: number;
@@ -28,8 +29,16 @@ export interface ThermalReceiptData {
  * Generate thermal printer HTML (80mm width)
  * Optimized for thermal printers with minimal styling
  */
-export function generateThermalReceipt(data: ThermalReceiptData): string {
+export function generateThermalReceipt(data: ThermalReceiptData, config?: ReceiptConfig): string {
     const { saleId, timestamp, items, subtotal, vat, total, paymentMethod, customer, cashier, cashGiven, change } = data;
+
+    // Default configuration
+    const pharmacyName = config?.pharmacyName || 'PHARMASOFT';
+    const address = config?.address || 'Tunis, Tunisia';
+    const phone = config?.phone || 'Tel: +216 XX XXX XXX';
+    const taxId = config?.taxId ? `MF: ${config.taxId}` : 'MF: TN123456789';
+    const footer1 = config?.footer || 'Merci pour votre visite!';
+    const footer2 = 'A bientot';
 
     const dateStr = new Date(timestamp).toLocaleString('fr-TN', {
         day: '2-digit',
@@ -111,11 +120,11 @@ export function generateThermalReceipt(data: ThermalReceiptData): string {
     </style>
 </head>
 <body>
-    <div class="center bold large">PHARMASOFT</div>
+    <div class="center bold large">${pharmacyName}</div>
     <div class="center">Pharmacie</div>
-    <div class="center">Tunis, Tunisia</div>
-    <div class="center">Tel: +216 XX XXX XXX</div>
-    <div class="center">MF: TN123456789</div>
+    <div class="center">${address}</div>
+    <div class="center">${phone}</div>
+    <div class="center">${taxId}</div>
     
     <div class="hr"></div>
     
@@ -188,13 +197,13 @@ export function generateThermalReceipt(data: ThermalReceiptData): string {
     
     <div class="hr"></div>
     
-    <div class="center">Merci pour votre visite!</div>
-    <div class="center">A bientot</div>
+    <div class="center">${footer1}</div>
+    <div class="center">${footer2}</div>
     
     <div class="hr"></div>
     
     <div class="center" style="font-size: 9px; margin-top: 10px;">
-        Powered by PharmaBest POS
+        Powered by PharmaSOFT POS
     </div>
     
     <script>
@@ -215,8 +224,8 @@ export function generateThermalReceipt(data: ThermalReceiptData): string {
 /**
  * Print thermal receipt
  */
-export function printThermalReceipt(data: ThermalReceiptData): void {
-    const html = generateThermalReceipt(data);
+export function printThermalReceipt(data: ThermalReceiptData, config?: ReceiptConfig): void {
+    const html = generateThermalReceipt(data, config);
 
     const printWindow = window.open('', '_blank', 'width=300,height=600');
 

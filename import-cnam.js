@@ -64,26 +64,26 @@ function mapCNAMProduct(row) {
 
     const code = getField([
         'Code', 'CODE', 'Code CNAM', 'CODE CNAM', 'Code Produit',
-        'N° ENREGISTREMENT', 'NumEnreg'
+        'N° ENREGISTREMENT', 'NumEnreg', 'CODE_PCT', 'Code PCT'
     ]);
 
     const nom = getField([
         'Dénomination', 'DENOMINATION', 'Nom', 'NOM', 'Nom Commercial',
-        'PRODUIT', 'Désignation', 'DESIGNATION'
+        'PRODUIT', 'Désignation', 'DESIGNATION', 'NOM_COMMERCIAL', 'Spécialité', 'SPECIALITE'
     ]);
 
     const dci = getField([
-        'DCI', 'Principe Actif', 'PRINCIPE ACTIF', 'Composition'
+        'DCI', 'Principe Actif', 'PRINCIPE ACTIF', 'Composition', 'AP'
     ]);
 
     const prix = getField([
         'Prix Public TTC', 'PRIX PUBLIC TTC', 'Prix', 'PRIX',
-        'Prix Public', 'PPH', 'Tarif'
+        'Prix Public', 'PPH', 'Tarif', 'PRIX_PUBLIC', 'TARIF_REFERENCE'
     ]);
 
     const taux = getField([
         'Taux', 'TAUX', 'Taux Remboursement', 'TAUX REMBOURSEMENT',
-        '% Remb', 'Prise en charge'
+        '% Remb', 'Prise en charge', 'CATEGORIE'
     ]);
 
     // Nettoyer les valeurs
@@ -91,7 +91,11 @@ function mapCNAMProduct(row) {
     const cleanTaux = (taux || '0').replace(/[^\d]/g, '');
 
     // Déterminer si ordonnance requise (VEI = Vente Exclusive en Pharmacie)
-    const isVEI = nom.includes('VEI') || nom.includes('V.E.I');
+    const isVEI = nom.includes('VEI') || nom.includes('V.E.I') || nom.includes('V E I');
+
+    // Calculer le taux de remboursement selon catégorie E
+    let reimb_rate = 85; // Par défaut
+    if (taux === 'E') reimb_rate = 85;
 
     return {
         barcode: code || `CNAM${Date.now()}${Math.random().toString(36).substr(2, 9)}`,
@@ -105,7 +109,7 @@ function mapCNAMProduct(row) {
 
         // CNAM - Tous remboursables car liste officielle
         cnam_reimbursable: true,
-        cnam_rate: parseInt(cleanTaux) || 85,
+        cnam_rate: reimb_rate,
         requires_prescription: isVEI,
         therapeutic_class: '', // À compléter manuellement si besoin
     };
@@ -131,13 +135,8 @@ async function importCNAM() {
             console.log('');
             console.log('Mapping:', mapCNAMProduct(products[0]));
             console.log('');
-            console.log('⚠️  VÉRIFIEZ le mapping!');
-            console.log('⚠️  Appuyez sur Enter pour continuer ou Ctrl+C pour arrêter');
+            console.log('✅ Mapping automatique activé - Import en cours...');
             console.log('');
-
-            await new Promise(resolve => {
-                process.stdin.once('data', resolve);
-            });
         }
 
         console.log('🚀 Import en cours...\n');

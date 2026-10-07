@@ -45,3 +45,96 @@ coverage/
 
 # OS
 Thumbs.db
+
+# Database files (never commit - may contain real user data)
+packages/database/prisma/*.db-wal
+packages/database/prisma/*.db-shm
+
+# Large binary artifacts
+apps/desktop/release/
+apps/desktop/release-smoke/
+cabinet/
+*.rar
+*.7z
+apps/desktop/dist/
+
+# Sensitive runtime data
+website/data/
+backups/
+logs/
+downloads/
+external-skills/
+
+# One-off admin/debug scripts
+create-free-user.js
+create_superadmin.js
+debug-admin.js
+check-pharmacy.ts
+setup-demo-account.sql
+opencode.json
+
+# Auto-generated docs (AI scratch docs)
+ADMIN_DASHBOARD_GUIDE.md
+ADMIN_INTERFACE_READY.md
+ADMIN_PORTAL_SECURITY_FIX.md
+ADMIN_VS_CASHIER_GUIDE.md
+ALL_MODALS_TRANSLATIONS_READY.md
+BUSINESS_MODEL_COMPLETE.md
+CLOUD_BACKUP_*.md
+CLOUD_SYNC_*.md
+COMPLETE_*.md
+CONGRATULATIONS.md
+CNAM_*.md
+CREATE_*.md
+DATA_*.md
+DEMO_*.md
+DEPLOYMENT_*.md
+DISCOUNT_*.md
+ENHANCED_*.md
+EXPIRED_*.md
+FACTURATION_*.md
+FEATURES_*.md
+FEATURE_*.md
+FIX_*.md
+FOOTER_*.md
+FREEMIUM_*.md
+FRENCH_*.md
+GITHUB_*.md
+HOW_*.md
+IMPORT_*.md
+INVOICE_*.md
+LOGIN_*.md
+MODAL_*.md
+MULTI_*.md
+NAVBAR_*.md
+NOTIFICATION_*.md
+PAYMENT_*.md
+PER_PHARMACY_*.md
+PHARMASOFT_FINAL_*.md
+PRICING_*.md
+PRODUCT_MANAGEMENT_*.md
+PROJECT_*.md
+REGISTRATION_*.md
+RESTART_*.md
+SCREEN_*.md
+SEARCH_*.md
+SERVICES_*.md
+SESSION_*.md
+SIMPLE_*.md
+START_HERE.md
+STATUS_*.md
+STRIPE_*.md
+SUPABASE_*.md
+TEST_*.md
+TRANSLATION_*.md
+USE_*.md
+AUTO_IMPORT_*.md
+ANALYTICS_*.md
+ADVANCED_*.md
+BATCH_*.md
+CUSTOMER_*.md
+DAILY_*.md
+IMPORT_*.md
+
+# Build/compiler caches already in .gitignore but explicit
+.turbo

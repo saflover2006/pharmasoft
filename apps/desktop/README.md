@@ -90,6 +90,13 @@ Creates:
 - `dist-electron/` - Electron build  
 - `dist/desktop Setup 0.0.0.exe` - Windows installer
 
+### Installation
+
+1. Go to `apps/desktop/release` directory
+2. Run `PharmaSOFT Setup 0.0.0.exe`
+3. Follow the installation wizard
+4. The application will launch automatically after installation
+
 ## 📁 Project Structure
 
 ```

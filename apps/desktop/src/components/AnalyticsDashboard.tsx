@@ -1,12 +1,10 @@
-// Analytics Dashboard Component - Now with REAL DATA!
-// Complete business intelligence with charts and KPIs
-
 import { useState, useEffect } from 'react';
 import {
     LineChart, Line, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { formatPrice } from '../utils/calculations';
+import { apiRequest } from '../services/database.service';
 
 interface DashboardStats {
     today: {
@@ -49,14 +47,8 @@ export default function AnalyticsDashboard({ onClose }: AnalyticsDashboardProps)
             setLoading(true);
             setError(null);
 
-            // Fetch REAL data from API
-            const response = await fetch(`http://localhost:3000/api/stats/dashboard?range=${dateRange}`);
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch stats');
-            }
-
-            const result = await response.json();
+            // Fetch REAL data from API using authenticated helper
+            const result = await apiRequest<DashboardStats>(`/stats/dashboard?range=${dateRange}`);
 
             if (result.success) {
                 setStats(result.data);
@@ -132,8 +124,8 @@ export default function AnalyticsDashboard({ onClose }: AnalyticsDashboardProps)
                                 key={range}
                                 onClick={() => setDateRange(range)}
                                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === range
-                                        ? 'bg-white text-blue-600'
-                                        : 'bg-blue-500 text-white hover:bg-blue-400'
+                                    ? 'bg-white text-blue-600'
+                                    : 'bg-blue-500 text-white hover:bg-blue-400'
                                     }`}
                             >
                                 {range === 'today' ? "Aujourd'hui" : range === 'week' ? 'Semaine' : range === 'month' ? 'Mois' : 'Année'}
@@ -227,7 +219,7 @@ export default function AnalyticsDashboard({ onClose }: AnalyticsDashboardProps)
                                     <YAxis stroke="#666" style={{ fontSize: '12px' }} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
-                                        formatter={(value: number) => [`${value.toFixed(2)} TND`, 'Revenue']}
+                                        formatter={(value: number | undefined) => [`${(value || 0).toFixed(2)} TND`, 'Revenue']}
                                     />
                                     <Line
                                         type="monotone"
@@ -254,7 +246,7 @@ export default function AnalyticsDashboard({ onClose }: AnalyticsDashboardProps)
                                         cx="50%"
                                         cy="50%"
                                         labelLine={false}
-                                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                                        label={({ name, percent }: any) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
                                         outerRadius={100}
                                         fill="#8884d8"
                                         dataKey="value"
@@ -263,7 +255,7 @@ export default function AnalyticsDashboard({ onClose }: AnalyticsDashboardProps)
                                             <Cell key={`cell-${index}`} fill={color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value: number) => `${value.toFixed(3)} TND`} />
+                                    <Tooltip formatter={(value: number | undefined) => `${(value || 0).toFixed(3)} TND`} />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>

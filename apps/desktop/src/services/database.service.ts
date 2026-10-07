@@ -1,23 +1,46 @@
 import type { Product, Customer } from '@repo/database';
-import type { PaymentMethod, PaymentResult, Result, CartItem } from '../types';
+import type { AuthenticatedUser, PaymentMethod, PaymentResult, Result, CartItem, ShiftRecord, Discount } from '../types';
 import { AppError as AppErrorClass, ErrorType as ErrorTypes } from '../types';
+import { API_BASE_URL } from '../config';
 
-const API_URL = 'http://localhost:3000/api';
+function normalizeEndpoint(endpoint: string): string {
+    if (!endpoint.startsWith('/')) {
+        return `/${endpoint}`;
+    }
+
+    return endpoint.startsWith('/api/') ? endpoint.slice(4) : endpoint;
+}
+
+function buildHeaders(options: RequestInit = {}): Record<string, string> {
+    const token = localStorage.getItem('token');
+
+    return {
+        'Content-Type': 'application/json',
+        ...((options.headers as Record<string, string>) || {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+}
+
+export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${normalizeEndpoint(endpoint)}`, {
+        ...options,
+        headers: buildHeaders(options),
+    });
+
+    return response.json() as Promise<T>;
+}
 
 /**
  * Generic API request wrapper
  */
-async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<Result<T>> {
+export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<Result<T>> {
     try {
-        const response = await fetch(`${API_URL}${endpoint}`, {
-            headers: { 'Content-Type': 'application/json' },
-            ...options
-        });
-        const json = await response.json();
+        const json = await apiFetch<{ success: boolean; data: T; error?: { message?: string } }>(endpoint, options);
 
         if (!json.success) {
             throw new Error(json.error?.message || 'Unknown API error');
         }
+
         return { success: true, data: json.data };
     } catch (error) {
         console.error(`API Error (${endpoint}):`, error);
@@ -29,6 +52,41 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
                 error
             )
         };
+    }
+}
+
+// ... (skipping ProductService, CustomerService, SaleService as they use apiRequest automatically)
+
+export class AuthService {
+    static async login(username: string, password: string): Promise<Result<{ token: string; user: AuthenticatedUser }>> {
+        const result = await apiRequest<{ token: string; user: AuthenticatedUser }>('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ username, password })
+        });
+
+        if (result.success && result.data.token) {
+            // Save token
+            localStorage.setItem('token', result.data.token);
+            // Also update the local stored user info if needed
+            localStorage.setItem('user', JSON.stringify(result.data.user || result.data));
+        }
+
+        return result;
+    }
+
+    static async verify(): Promise<Result<{ user: AuthenticatedUser }>> {
+        const result = await apiRequest<{ user: AuthenticatedUser }>('/auth/verify');
+
+        if (result.success && result.data) {
+            localStorage.setItem('user', JSON.stringify(result.data.user || result.data));
+        }
+
+        return result;
+    }
+
+    static logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
     }
 }
 
@@ -63,12 +121,12 @@ export class ProductService {
         return apiRequest<boolean>(`/products/${id}`, { method: 'DELETE' });
     }
 
-    static async getById(id: number): Promise<Result<Product | null>> {
+    static async getById(_id: number): Promise<Result<Product | null>> {
         // Placeholder
         return { success: false, error: new AppErrorClass(ErrorTypes.DATABASE_ERROR, "Not implemented via API") };
     }
 
-    static async updateStock(productId: number, quantityChange: number): Promise<Result<Product>> {
+    static async updateStock(_productId: number, _quantityChange: number): Promise<Result<Product>> {
         // Placeholder
         return { success: false, error: new AppErrorClass(ErrorTypes.DATABASE_ERROR, "Not implemented via API") };
     }
@@ -94,7 +152,8 @@ export class SalesService {
         total: number,
         customerInfo?: { name: string; phone?: string },
         userId?: number,
-        shiftId?: number
+        shiftId?: number,
+        discount?: Discount
     ): Promise<PaymentResult> {
         const payload = {
             items: cart.map(item => ({ product: item.product, quantity: item.quantity })),
@@ -102,10 +161,31 @@ export class SalesService {
             total,
             customerInfo,
             userId,
-            shiftId
+            shiftId,
+            discount: discount
+                ? {
+                    type: discount.type,
+                    value: discount.value,
+                    reason: discount.reason,
+                }
+                : undefined,
         };
 
-        const result = await apiRequest<any>('/sales', {
+        const result = await apiRequest<{
+            saleId: number;
+            total_amount: number;
+            timestamp: string;
+            payment_method: PaymentMethod;
+            items: Array<{
+                product: CartItem['product'];
+                quantity: number;
+            }>;
+            customer?: {
+                id: number;
+                name: string;
+                phone: string | null;
+            } | null;
+        }>('/sales', {
             method: 'POST',
             body: JSON.stringify(payload)
         });
@@ -123,6 +203,12 @@ export class SalesService {
                     quantity: i.quantity
                 })),
                 customer: data.customer
+                    ? {
+                        id: data.customer.id,
+                        name: data.customer.name,
+                        phone: data.customer.phone || undefined,
+                    }
+                    : null,
             };
         } else {
             return {
@@ -141,32 +227,25 @@ export class SalesService {
     }
 }
 
-export class AuthService {
-    static async login(username: string, password: string): Promise<Result<any>> {
-        return apiRequest<any>('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password })
-        });
-    }
-}
+
 
 export class ShiftService {
-    static async startShift(userId: number, startAmount: number): Promise<Result<any>> {
-        return apiRequest<any>('/shifts/start', {
+    static async startShift(userId: number, startAmount: number): Promise<Result<ShiftRecord>> {
+        return apiRequest<ShiftRecord>('/shifts/start', {
             method: 'POST',
             body: JSON.stringify({ userId, startAmount })
         });
     }
 
-    static async endShift(shiftId: number, endAmount: number, note?: string): Promise<Result<any>> {
-        return apiRequest<any>('/shifts/end', {
+    static async endShift(shiftId: number, endAmount: number, note?: string): Promise<Result<ShiftRecord>> {
+        return apiRequest<ShiftRecord>('/shifts/end', {
             method: 'POST',
             body: JSON.stringify({ shiftId, endAmount, note })
         });
     }
 
-    static async getActiveShift(userId: number): Promise<Result<any>> {
-        return apiRequest<any>(`/shifts/active/${userId}`);
+    static async getActiveShift(userId: number): Promise<Result<ShiftRecord | null>> {
+        return apiRequest<ShiftRecord | null>(`/shifts/active/${userId}`);
     }
 }
 
@@ -194,6 +273,8 @@ export class StockAdjustmentService {
         reason: string;
         notes?: string;
         userId: number;
+        batchNumber?: string;
+        expiryDate?: string;
     }): Promise<Result<any>> {
         return apiRequest<any>('/stock-adjustments', {
             method: 'POST',
@@ -242,3 +323,37 @@ export class UserService {
     }
 }
 
+
+export class PharmacyService {
+    static async getProfile(): Promise<Result<any>> {
+        return apiRequest<any>('/pharmacy');
+    }
+
+    static async updateProfile(data: {
+        name: string;
+        address?: string;
+        phone?: string;
+        email?: string;
+        taxId?: string;
+        footer?: string;
+    }): Promise<Result<any>> {
+        return apiRequest<any>('/pharmacy', {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    static async redeemLicense(licenseKey: string): Promise<Result<any>> {
+        return apiRequest<any>('/license/redeem', {
+            method: 'POST',
+            body: JSON.stringify({ licenseKey })
+        });
+    }
+
+    static async startTrial(): Promise<Result<any>> {
+        return apiRequest<any>('/trial/start', {
+            method: 'POST',
+            body: JSON.stringify({})
+        });
+    }
+}

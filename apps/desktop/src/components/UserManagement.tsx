@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
 import { UserService } from '../services/database.service';
+import { useLimit } from '../hooks/useLicense';
+import LimitWarning from './LimitWarning';
 
 interface UserManagementProps {
     onClose: () => void;
     currentUser: any;
+    onUpgradeRequest?: (options?: {
+        feature?: string;
+        currentLimit?: { current: number; max: number };
+    }) => void;
+    t: (key: string) => string;
 }
 
 interface User {
@@ -29,7 +36,7 @@ const INITIAL_FORM: UserFormData = {
     role: 'cashier'
 };
 
-export default function UserManagement({ onClose, currentUser }: UserManagementProps) {
+export default function UserManagement({ onClose, currentUser, onUpgradeRequest }: UserManagementProps) {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -37,6 +44,7 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
     const [formError, setFormError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const { limit: userLimit, refresh: refreshUserLimit } = useLimit('users');
 
     useEffect(() => {
         loadUsers();
@@ -57,6 +65,17 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
     };
 
     const handleAdd = () => {
+        if (userLimit && !userLimit.allowed) {
+            onUpgradeRequest?.({
+                feature: 'More Team Members',
+                currentLimit: {
+                    current: userLimit.current,
+                    max: userLimit.max,
+                },
+            });
+            return;
+        }
+
         setEditingUser(null);
         setFormData(INITIAL_FORM);
         setFormError(null);
@@ -90,6 +109,7 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
             const result = await UserService.delete(user.id);
             if (result.success) {
                 loadUsers();
+                refreshUserLimit();
             } else {
                 alert(`Error: ${result.error?.message}`);
             }
@@ -123,6 +143,18 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
 
         if (!validateForm()) return;
 
+        if (!editingUser && userLimit && !userLimit.allowed) {
+            setFormError(`User limit reached (${userLimit.current}/${userLimit.max}). Upgrade to continue.`);
+            onUpgradeRequest?.({
+                feature: 'More Team Members',
+                currentLimit: {
+                    current: userLimit.current,
+                    max: userLimit.max,
+                },
+            });
+            return;
+        }
+
         setIsSubmitting(true);
         setFormError(null);
 
@@ -147,6 +179,9 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
             if (result.success) {
                 setShowForm(false);
                 loadUsers();
+                if (!editingUser) {
+                    refreshUserLimit();
+                }
             } else {
                 setFormError(result.error?.message || 'Operation failed');
             }
@@ -189,6 +224,23 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
                     </div>
                 </div>
 
+                {userLimit && userLimit.max > 0 && (
+                    <div className="px-6 pt-4">
+                        <LimitWarning
+                            type="users"
+                            current={userLimit.current}
+                            max={userLimit.max}
+                            onUpgrade={() => onUpgradeRequest?.({
+                                feature: 'More Team Members',
+                                currentLimit: {
+                                    current: userLimit.current,
+                                    max: userLimit.max,
+                                },
+                            })}
+                        />
+                    </div>
+                )}
+
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
                     {isLoading ? (
@@ -213,8 +265,8 @@ export default function UserManagement({ onClose, currentUser }: UserManagementP
                                         <td className="py-3 px-4 font-mono text-sm">{user.username}</td>
                                         <td className="py-3 px-4">
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'admin'
-                                                    ? 'bg-primary/20 text-primary'
-                                                    : 'bg-success/20 text-success'
+                                                ? 'bg-primary/20 text-primary'
+                                                : 'bg-success/20 text-success'
                                                 }`}>
                                                 {user.role}
                                             </span>

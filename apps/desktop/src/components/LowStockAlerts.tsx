@@ -5,12 +5,13 @@ import type { Product } from '@repo/database';
 
 interface LowStockAlertsProps {
     onClose: () => void;
+    t: (key: string) => string;
 }
 
 /**
  * Low stock alerts component showing products below threshold
  */
-export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
+export default function LowStockAlerts({ onClose, t }: LowStockAlertsProps) {
     const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -63,20 +64,20 @@ export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
                             <svg className="h-7 w-7 mr-3 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
-                            Low Stock Alerts
+                            {t('lowStockAlerts.title')}
                         </h2>
                         {!isLoading && lowStockProducts.length > 0 && (
                             <div className="mt-1 flex items-center space-x-4 text-sm">
                                 {criticalCount > 0 && (
                                     <span className="text-danger flex items-center">
                                         <span className="w-2 h-2 bg-danger rounded-full mr-1"></span>
-                                        {criticalCount} Critical
+                                        {criticalCount} {t('lowStockAlerts.critical')}
                                     </span>
                                 )}
                                 {lowCount > 0 && (
                                     <span className="text-warning flex items-center">
                                         <span className="w-2 h-2 bg-warning rounded-full mr-1"></span>
-                                        {lowCount} Low
+                                        {lowCount} {t('lowStockAlerts.low')}
                                     </span>
                                 )}
                             </div>
@@ -104,8 +105,8 @@ export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
                             <svg className="h-20 w-20 mb-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p className="text-lg font-medium">All stock levels are healthy!</p>
-                            <p className="text-sm text-gray-600 mt-1">No products below the low stock threshold</p>
+                            <p className="text-lg font-medium">{t('lowStockAlerts.allHealthy')}</p>
+                            <p className="text-sm text-gray-600 mt-1">{t('lowStockAlerts.noProductsBelow')}</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
@@ -133,10 +134,10 @@ export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
                                                             {product.commercial_name}
                                                         </h3>
                                                         <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${level === 'critical' ? 'bg-danger text-white' :
-                                                                level === 'low' ? 'bg-warning text-white' :
-                                                                    'bg-blue-400 text-white'
+                                                            level === 'low' ? 'bg-warning text-white' :
+                                                                'bg-blue-400 text-white'
                                                             }`}>
-                                                            {level}
+                                                            {t(`lowStockAlerts.${level}`)}
                                                         </span>
                                                     </div>
                                                     <p className="text-sm text-gray-500 font-mono">{product.barcode}</p>
@@ -153,7 +154,7 @@ export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
                                                 {/* Stock Progress Bar */}
                                                 <div>
                                                     <div className="flex justify-between text-sm mb-1">
-                                                        <span className="text-gray-400">Current Stock</span>
+                                                        <span className="text-gray-400">{t('lowStockAlerts.currentStock')}</span>
                                                         <span className="font-bold text-gray-100">
                                                             {product.current_stock} / {product.low_stock_threshold}
                                                         </span>
@@ -161,8 +162,8 @@ export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
                                                     <div className="h-3 bg-dark-bg rounded-full overflow-hidden">
                                                         <div
                                                             className={`h-full transition-all ${level === 'critical' ? 'bg-danger' :
-                                                                    level === 'low' ? 'bg-warning' :
-                                                                        'bg-blue-400'
+                                                                level === 'low' ? 'bg-warning' :
+                                                                    'bg-blue-400'
                                                                 }`}
                                                             style={{ width: `${Math.min(percentage, 100)}%` }}
                                                         />
@@ -200,14 +201,14 @@ export default function LowStockAlerts({ onClose }: LowStockAlertsProps) {
                 <div className="px-6 py-4 border-t border-dark-border flex justify-between items-center">
                     <div className="text-sm text-gray-500">
                         {lowStockProducts.length > 0
-                            ? `${lowStockProducts.length} product${lowStockProducts.length !== 1 ? 's' : ''} need attention`
-                            : 'Stock levels monitored'}
+                            ? `${lowStockProducts.length} ${lowStockProducts.length !== 1 ? t('lowStockAlerts.products') : t('lowStockAlerts.product')} ${t('lowStockAlerts.needsAttention')}`
+                            : t('lowStockAlerts.stockLevelsMonitored')}
                     </div>
                     <button
                         onClick={onClose}
                         className="btn-primary px-6 py-2 rounded-lg"
                     >
-                        Close
+                        {t('lowStockAlerts.close')}
                     </button>
                 </div>
             </div>

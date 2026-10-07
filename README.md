@@ -239,6 +239,13 @@ This project is private and proprietary.
 
 This is a private project. For development guidelines, please contact the project maintainer.
 
+## 🤖 Assistant Workflow
+
+When collaborating with an AI coding assistant on this repository:
+- Continue with the next reasonable implementation step without asking for repeated confirmation.
+- Only stop to ask for input when the request is ambiguous, a destructive action is required, or there is a real blocker.
+- After making changes, run the relevant verification steps and summarize the result.
+
 ---
 
 **Built with ❤️ for Tunisian Pharmacies**

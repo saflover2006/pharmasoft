@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #INV-001</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-print-color-adjust: exact;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .shadow-lg {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-8 flex flex-col items-center">
+
+    <!-- Actions -->
+    <div class="w-full max-w-3xl mb-6 flex justify-between items-center no-print">
+        <a href="javascript:window.close()" class="text-gray-500 hover:text-gray-800">&larr; Close</a>
+        <button onclick="window.print()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-blue-700">
+            Download / Print PDF
+        </button>
+    </div>
+
+    <!-- Invoice Paper -->
+    <div class="bg-white w-full max-w-3xl p-12 rounded-xl shadow-lg relative overflow-hidden">
+
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-12">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold">P
+                    </div>
+                    <span class="font-bold text-gray-900 text-xl">PharmaSOFT</span>
+                </div>
+                <div class="text-gray-500 text-sm">
+                    123 Innovation Drive<br>
+                    Tunis, Tunisia 1000<br>
+                    support@pharmasoft.app
+                </div>
+            </div>
+            <div class="text-right">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">INVOICE</h1>
+                <div class="text-gray-500 font-medium text-lg">#<span id="inv-number">INV-2026-001</span></div>
+            </div>
+        </div>
+
+        <!-- Bill To / Info -->
+        <div class="flex justify-between mb-12 border-t border-gray-100 pt-8">
+            <div>
+                <div class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Bill To</div>
+                <div class="text-gray-900 font-bold text-lg mb-1" id="bill-name">My Pharmacy</div>
+                <div class="text-gray-600 text-sm" id="bill-email">user@pharmacy.com</div>
+            </div>
+            <div class="text-right">
+                <div class="mb-4">
+                    <span class="text-gray-500 text-sm font-bold uppercase tracking-wider mr-4">Invoice Date</span>
+                    <span class="text-gray-900 font-medium" id="inv-date">Jan 22, 2026</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 text-sm font-bold uppercase tracking-wider mr-4">Status</span>
+                    <span
+                        class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Paid</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="w-full mb-12">
+            <thead>
+                <tr class="border-b-2 border-gray-900">
+                    <th class="text-left py-4 text-sm font-bold text-gray-900 uppercase tracking-wider">Description</th>
+                    <th class="text-right py-4 text-sm font-bold text-gray-900 uppercase tracking-wider">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr>
+                    <td class="py-4 text-gray-800 font-medium">
+                        PharmaSOFT Professional Plan
+                        <div class="text-sm text-gray-500 font-normal mt-1">Monthly Subscription (License: <span
+                                id="license-ref">PRO-X99</span>)</div>
+                    </td>
+                    <td class="py-4 text-right text-gray-900 font-bold">$29.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="flex justify-end border-t border-gray-900 pt-8">
+            <div class="w-64">
+                <div class="flex justify-between mb-3 text-gray-600">
+                    <span>Subtotal</span>
+                    <span>$29.00</span>
+                </div>
+                <div class="flex justify-between mb-3 text-gray-600">
+                    <span>Tax (0%)</span>
+                    <span>$0.00</span>
+                </div>
+                <div class="flex justify-between text-2xl font-bold text-gray-900 pt-3 border-t border-gray-200">
+                    <span>Total</span>
+                    <span>$29.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-16 text-center text-gray-400 text-sm">
+            <p>Thank you for your business.</p>
+            <p class="mt-2 text-xs">PharmaSOFT Inc. Tunisi • Ref: TX-99283-22</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Populate Data from URL Params
+        const params = new URLSearchParams(window.location.search);
+
+        document.getElementById('inv-number').innerText = params.get('id') || 'INV-2026-001';
+        document.getElementById('inv-date').innerText = params.get('date') || new Date().toLocaleDateString();
+        document.getElementById('bill-name').innerText = params.get('name') || 'Valued Customer';
+        document.getElementById('bill-email').innerText = params.get('email') || '';
+        document.getElementById('license-ref').innerText = (params.get('key') || 'PENDING').substring(0, 8) + '...';
+
+        const amount = params.get('amount') || '29.00';
+        const desc = params.get('desc') || 'PharmaSOFT Professional Plan';
+
+        // Update Table Description
+        document.querySelector('td.text-gray-800').innerHTML = `
+            ${desc}
+            <div class="text-sm text-gray-500 font-normal mt-1">Subscription (License: ${params.get('key') || 'N/A'})</div>
+        `;
+
+        // Update Table Amount
+        document.querySelector('td.text-right.text-gray-900').innerText = '$' + amount;
+
+        // Update Totals (Subtotal and Total)
+        // Note: Using precise selectors to avoid breaking if DOM changes slightly
+        const totalContainer = document.querySelector('.w-64');
+        if (totalContainer) {
+            const spans = totalContainer.querySelectorAll('div.flex span:last-child');
+            if (spans.length >= 3) {
+                spans[0].innerText = '$' + amount; // Subtotal
+                spans[2].innerText = '$' + amount; // Total
+            }
+        }
+    </script>
+</body>
+
+</html>

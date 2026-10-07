@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ShiftService } from '../services/database.service';
+import type { AuthenticatedUser, ShiftRecord } from '../types';
 
 interface ShiftStartModalProps {
-    user: any;
-    onShiftStarted: (shift: any) => void;
+    user: AuthenticatedUser;
+    onShiftStarted: (shift: ShiftRecord) => void;
     onCancel: () => void;
 }
 

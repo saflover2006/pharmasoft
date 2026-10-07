@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PharmaSOFT – Super Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a' },
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Sidebar active state */
+        .nav-item.active {
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav-item.active i {
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 h-screen overflow-hidden">
+
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-95">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
+                    <i class="fa-solid fa-user-shield text-2xl text-primary-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">PharmaSOFT Admin</h2>
+                <p class="text-gray-500 mt-2">Super-admin access only</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="username"
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                            placeholder="superadmin" autocomplete="username" required value="superadmin">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" id="password"
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                            placeholder="••••••••" required value="admin123">
+                    </div>
+                </div>
+
+                <div id="login-error"
+                    class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>Invalid credentials</span>
+                </div>
+
+                <button type="submit" id="login-btn"
+                    class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                    Access Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== DASHBOARD UI ==================== -->
+    <div id="app-container" class="flex h-screen hidden">
+
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 text-white flex flex-col transition-all duration-300 shadow-xl z-20 relative">
+            <div class="h-20 flex items-center px-6 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg">
+                        P</div>
+                    <span class="text-lg font-bold tracking-wide">PharmaSOFT</span>
+                </div>
+            </div>
+
+            <nav class="flex-1 py-6 px-3 space-y-1">
+                <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard"
+                    class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span class="font-medium">Overview</span>
+                </a>
+                <a href="#" onclick="switchTab('customers')" id="nav-customers"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-user-group w-5 text-center"></i>
+                    <span class="font-medium">Customers</span>
+                </a>
+                <a href="#" onclick="switchTab('finance')" id="nav-finance"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-wallet w-5 text-center"></i>
+                    <span class="font-medium">Finance</span>
+                </a>
+                <a href="#" onclick="switchTab('tickets')" id="nav-tickets"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-headset w-5 text-center"></i>
+                    <span class="font-medium">Support Tickets</span>
+                </a>
+                <a href="#" onclick="switchTab('settings')" id="nav-settings"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-gear w-5 text-center"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="logout()"
+                    class="flex items-center gap-3 w-full px-4 py-2 text-slate-400 hover:text-red-400 transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="text-sm font-medium">Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col min-w-0 bg-gray-50 overflow-hidden">
+
+            <!-- Header -->
+            <header
+                class="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-10">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800" id="page-title">Dashboard Overview</h1>
+                    <p class="text-sm text-gray-500">Welcome back, Super Admin</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div
+                        class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-100">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                        </span>
+                        System Online
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <main class="flex-1 overflow-y-auto p-8">
+
+                <!-- VIEW: DASHBOARD (Default) -->
+                <div id="view-dashboard" class="fade-in">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-blue-50 rounded-xl text-blue-600"><i
+                                        class="fa-solid fa-hospital text-xl"></i></div>
+                                <span
+                                    class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">+12%</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-gray-900" id="stat-total">--</h3>
+                            <p class="text-sm text-gray-500 mt-1">Total Pharmacies</p>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-green-50 rounded-xl text-green-600"><i
+                                        class="fa-solid fa-dollar-sign text-xl"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-bold text-gray-900" id="stat-total-revenue">--</h3>
+                            <p class="text-sm text-gray-500 mt-1">Total Revenue (TND)</p>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-amber-50 rounded-xl text-amber-600"><i
+                                        class="fa-solid fa-bolt text-xl"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-bold text-gray-900" id="stat-trials">--</h3>
+                            <p class="text-sm text-gray-500 mt-1">Active Trials</p>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-purple-50 rounded-xl text-purple-600"><i
+                                        class="fa-solid fa-crown text-xl"></i></div>
+                            </div>
+                            <h3 class="text-3xl font-bold text-gray-900" id="stat-paid">--</h3>
+                            <p class="text-sm text-gray-500 mt-1">Paid Subscribers</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Revenue Chart -->
+                        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="text-lg font-bold text-gray-800 mb-6">Revenue Analytics</h3>
+                            <div class="h-80 w-full"><canvas id="revenueChart"></canvas></div>
+                        </div>
+                        <!-- Plan Distribution -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="text-lg font-bold text-gray-800 mb-6">Plan Distribution</h3>
+                            <div class="h-64 flex justify-center"><canvas id="tierChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: CUSTOMERS -->
+                <div id="view-customers" class="hidden fade-in">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 space-y-4">
+                            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800">All Pharmacies</h3>
+                                    <p id="customer-filter-count" class="text-sm text-gray-500 mt-1">Loading pharmacies...</p>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:min-w-[760px]">
+                                    <div class="relative">
+                                        <input type="text" id="search" placeholder="Search pharmacy..."
+                                            class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                                        <i
+                                            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    </div>
+                                    <select id="customer-plan-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                                        <option value="all">All plans</option>
+                                        <option value="free">Free</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="enterprise">Enterprise</option>
+                                    </select>
+                                    <select id="customer-status-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                                        <option value="all">All statuses</option>
+                                        <option value="active">Active</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                    <select id="customer-signup-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                                        <option value="all">Any signup date</option>
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30">Last 30 days</option>
+                                        <option value="90">Last 90 days</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 text-gray-500 font-medium">
+                                    <tr>
+                                        <th class="px-6 py-4">Pharmacy</th>
+                                        <th class="px-6 py-4">Phone</th>
+                                        <th class="px-6 py-4">Status</th>
+                                        <th class="px-6 py-4">Plan</th>
+                                        <th class="px-6 py-4 text-right">Registered</th>
+                                        <th class="px-6 py-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100" id="pharmacy-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: FINANCE -->
+                <div id="view-finance" class="hidden fade-in">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+                        <h2 class="text-xl font-bold mb-4">Revenue Overview</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <p class="text-sm text-gray-500">Total Revenue (All Time)</p>
+                                <p id="finance-total-revenue" class="text-2xl font-bold text-gray-900">--</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <p class="text-sm text-gray-500">Upcoming Renewals</p>
+                                <p id="finance-upcoming-renewals" class="text-2xl font-bold text-gray-900">--</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <p class="text-sm text-gray-500">Failed Payments</p>
+                                <p id="finance-failed-payments" class="text-2xl font-bold text-red-600">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 space-y-4">
+                            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                <div>
+                                    <h3 class="text-lg font-bold">Recent Transactions</h3>
+                                    <p id="finance-filter-count" class="text-sm text-gray-500 mt-1">Loading transactions...</p>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:min-w-[760px]">
+                                    <input type="text" id="finance-search" placeholder="Search transactions..."
+                                        class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                    <select id="finance-plan-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <option value="all">All plans</option>
+                                        <option value="free">Free</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="enterprise">Enterprise</option>
+                                    </select>
+                                    <select id="finance-status-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <option value="all">All statuses</option>
+                                        <option value="paid">Paid</option>
+                                        <option value="manual">Manual</option>
+                                        <option value="failed">Failed</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="unpaid">Unpaid</option>
+                                    </select>
+                                    <select id="finance-source-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <option value="all">All sources</option>
+                                        <option value="self-service">Self-service</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500">
+                                <tr>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Pharmacy</th>
+                                    <th class="px-6 py-4">Description</th>
+                                    <th class="px-6 py-4 text-right">Amount</th>
+                                    <th class="px-6 py-4 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-transactions-body">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-400">Loading transactions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: SETTINGS -->
+                <div id="view-settings" class="hidden fade-in">
+                    <div
+                        class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-bold">Admin Settings</h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 mb-4">Change Password</h4>
+                                <div class="space-y-4">
+                                    <input type="password" placeholder="Current Password"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <input type="password" placeholder="New Password"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <input type="password" placeholder="Confirm New Password"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <button
+                                        class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">Update
+                                        Password</button>
+                                </div>
+                            </div>
+                            <hr class="border-gray-100">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">System Info</h4>
+                                <p class="text-sm text-gray-500">Version: 1.0.0 (Pro)</p>
+                                <p class="text-sm text-gray-500">Website API: Online (Port 3001)</p>
+                            </div>
+                            <hr class="border-gray-100">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Software Pricing</h4>
+                                <p class="text-sm text-gray-500 mb-4">Change software plan prices and control whether self-service purchase is enabled.</p>
+                                <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 mb-4">
+                                    <h5 class="text-sm font-semibold text-gray-900 mb-3">Add New Software</h5>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <input id="new-product-id" type="text" placeholder="product-id"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <input id="new-product-name" type="text" placeholder="Software Name"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <input id="new-product-category" type="text" placeholder="Category (e.g. pharmacy)"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <select id="new-product-web-pricing" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                            <option value="free">Web: Free</option>
+                                            <option value="paid">Web: Paid</option>
+                                        </select>
+                                        <select id="new-product-desktop-pricing" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                            <option value="paid">Desktop: Paid</option>
+                                            <option value="custom">Desktop: Custom</option>
+                                            <option value="free">Desktop: Free</option>
+                                        </select>
+                                        <label class="inline-flex items-center gap-2 text-sm text-gray-600 px-2">
+                                            <input id="new-product-purchasable" type="checkbox" class="rounded border-gray-300">
+                                            Enable self-service desktop purchase
+                                        </label>
+                                        <input id="new-product-monthly" type="number" min="0" step="0.01" placeholder="Monthly price"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <input id="new-product-yearly" type="number" min="0" step="0.01" placeholder="Yearly price"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <input id="new-product-enterprise" type="number" min="0" step="0.01" placeholder="Enterprise price"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                        <input id="new-product-lifetime" type="number" min="0" step="0.01" placeholder="Lifetime price"
+                                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                    </div>
+                                    <div class="mt-4 flex items-center gap-3">
+                                        <button onclick="createProduct()" class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm">Create Product</button>
+                                        <span id="new-product-status" class="text-xs text-gray-500"></span>
+                                    </div>
+                                </div>
+                                <div id="product-pricing-list" class="space-y-4">
+                                    <div class="text-sm text-gray-400">Loading product catalog...</div>
+                                </div>
+                            </div>
+                            <hr class="border-gray-100">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Upload Maintenance</h4>
+                                <p class="text-sm text-gray-500 mb-4">Stale ticket uploads are cleaned automatically. Run a manual cleanup any time for orphaned old files.</p>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <button id="cleanup-uploads-btn" onclick="cleanupUploads()"
+                                        class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">Clean stale uploads</button>
+                                    <span id="cleanup-uploads-result" class="text-xs text-gray-500"></span>
+                                </div>
+                                <div class="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                    <div class="flex items-center justify-between gap-4 mb-3">
+                                        <h5 class="text-sm font-semibold text-gray-900">Recent Cleanup History</h5>
+                                        <button onclick="fetchCleanupHistory()" class="text-xs font-medium text-primary-600 hover:underline">Refresh</button>
+                                    </div>
+                                    <div id="cleanup-history-list" class="space-y-3">
+                                        <div class="text-sm text-gray-400">Loading cleanup history...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: TICKETS (New) -->
+                <div id="view-tickets" class="hidden fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Support Tickets <span id="ticket-count-badge"
+                                    class="ml-2 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs hidden">0</span>
+                            </h2>
+                            <p id="ticket-filter-count" class="text-sm text-gray-500 mt-1">Loading tickets...</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="ticket-search" placeholder="Search tickets..."
+                                class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                            <select id="ticket-status-filter" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                <option value="all">All statuses</option>
+                                <option value="open">Open</option>
+                                <option value="in_progress">In progress</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                            <button onclick="refreshTickets()"
+                                class="p-2 text-gray-500 hover:text-primary-600 bg-white rounded-lg shadow-sm border border-gray-200">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead
+                                    class="bg-gray-50 text-xs text-gray-500 font-semibold uppercase tracking-wider text-left">
+                                    <tr>
+                                        <th class="px-6 py-4">ID</th>
+                                        <th class="px-6 py-4">Subject</th>
+                                        <th class="px-6 py-4">Pharmacy</th>
+                                        <th class="px-6 py-4">Status</th>
+                                        <th class="px-6 py-4">Date</th>
+                                        <th class="px-6 py-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tickets-table-body" class="divide-y divide-gray-100 text-sm">
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-400">Loading tickets...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Management Modal -->
+    <div id="modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-gray-900 mb-1" id="modal-title">Manage Pharmacy</h3>
+            <p class="text-sm text-gray-500 mb-6">ID: <span id="modal-id" class="font-mono">--</span></p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Change Plan</label>
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        <button onclick="performAction('upgrade', 'professional')"
+                            class="flex items-center justify-center gap-2 px-4 py-3 border border-blue-200 rounded-xl bg-blue-50 text-blue-700 font-medium hover:bg-blue-100">
+                            <i class="fa-solid fa-star"></i> Professional
+                        </button>
+                        <button onclick="performAction('upgrade', 'enterprise')"
+                            class="flex items-center justify-center gap-2 px-4 py-3 border border-purple-200 rounded-xl bg-purple-50 text-purple-700 font-medium hover:bg-purple-100">
+                            <i class="fa-solid fa-building"></i> Enterprise
+                        </button>
+                        <button onclick="performAction('upgrade', 'free')"
+                            class="col-span-2 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 text-sm">
+                            Downgrade to Free
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100">
+                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Danger Zone</label>
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        <button id="btn-suspend" onclick="performAction('suspend')"
+                            class="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100">
+                            <i class="fa-solid fa-ban"></i> Suspend
+                        </button>
+                        <button id="btn-activate" onclick="performAction('reactivate')"
+                            class="hidden flex items-center justify-center gap-2 px-4 py-2 border border-green-200 rounded-xl bg-green-50 text-green-600 font-medium hover:bg-green-100">
+                            <i class="fa-solid fa-check"></i> Reactivate
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i
+                    class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+    </div>
+
+    <!-- Ticket Response Modal -->
+    <div id="ticket-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="closeTicketModal()">
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900" id="ticket-modal-subject">Ticket Subject</h3>
+                    <p class="text-sm text-gray-500">Thread #<span id="ticket-modal-id">--</span></p>
+                </div>
+                <button onclick="closeTicketModal()" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="ticket-chat-area"
+                class="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-4 mb-4 space-y-4 border border-gray-100">
+                <!-- Messages will be injected here -->
+            </div>
+
+            <!-- Reply Box -->
+            <div class="pt-2">
+                <input type="file" id="admin-reply-attachments" multiple accept=".png,.jpg,.jpeg,.pdf,.txt"
+                    class="w-full border border-gray-300 rounded-lg p-3 mb-3 bg-white text-sm">
+                <div id="admin-reply-attachments-preview" class="mb-3 hidden space-y-2"></div>
+                <textarea id="reply-input" rows="3"
+                    class="w-full border-gray-300 rounded-lg p-3 focus:ring-primary-500 border"
+                    placeholder="Type your reply..."></textarea>
+                <div class="flex justify-end mt-2 gap-2">
+                    <button id="btn-resolve-ticket" onclick="resolveTicket(currentTicketId)"
+                        class="px-4 py-2 border border-green-200 text-green-700 bg-green-50 rounded-lg hover:bg-green-100 font-medium">
+                        <i class="fa-solid fa-check mr-2"></i> Resolve
+                    </button>
+                    <button onclick="sendReply()"
+                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> Send Reply
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="image-lightbox" class="fixed inset-0 z-[70] hidden">
+        <div class="absolute inset-0 bg-slate-950/90" onclick="closeImageLightbox()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8">
+            <div class="relative w-full max-w-5xl">
+                <button onclick="closeImageLightbox()"
+                    class="absolute right-3 top-3 z-10 rounded-full bg-slate-900/80 px-3 py-2 text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl">
+                    <img id="image-lightbox-image" src="" alt="Attachment preview" class="max-h-[80vh] w-full object-contain bg-slate-950">
+                    <div id="image-lightbox-caption" class="border-t border-slate-800 px-4 py-3 text-sm text-slate-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let token = localStorage.getItem('admin_token');
+        let currentModalId = null;
+        let currentTicketId = null; // New
+        let allTickets = [];
+        let allPharmacies = [];
+        let billingOverview = { totalRevenue: 0, upcomingRenewals: 0, failedPayments: 0, recentTransactions: [] };
+        let cleanupHistory = [];
+        let productCatalog = [];
+        let chartInstances = {};
+        let currentView = 'dashboard';
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function formatTier(tier) {
+            const t = String(tier || 'web').toLowerCase();
+            if (t === 'free' || t === 'web') return '<span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-bold">WEB FREE</span>';
+            if (t === 'desktop' || t === 'professional' || t === 'enterprise') return '<span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-bold">DESKTOP</span>';
+            return '<span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-bold">' + t.toUpperCase() + '</span>';
+        }
+
+        function formatCurrency(value) {
+            const n = Number(value || 0); return n.toLocaleString('fr-TN', {minimumFractionDigits:3, maximumFractionDigits:3}) + ' TND';
+        }
+
+        function formatFileSize(bytes) {
+            const numericBytes = Number(bytes || 0);
+            if (!numericBytes) return '0 B';
+            if (numericBytes >= 1024 * 1024) return `${(numericBytes / (1024 * 1024)).toFixed(1)} MB`;
+            if (numericBytes >= 1024) return `${Math.round(numericBytes / 1024)} KB`;
+            return `${numericBytes} B`;
+        }
+
+        function getAttachmentTypeLabel(type) {
+            if (String(type || '').startsWith('image/')) return 'Image';
+            if (type === 'application/pdf') return 'PDF';
+            if (type === 'text/plain') return 'Text file';
+            return type || 'Attachment';
+        }
+
+        function formatDate(value) {
+            return new Date(value).toLocaleDateString();
+        }
+
+        function formatDateTime(value) {
+            return new Date(value).toLocaleString();
+        }
+
+        function getFinanceStatusBadge(status) {
+            const normalized = String(status || 'paid').toLowerCase();
+            const classMap = {
+                paid: 'bg-green-100 text-green-700',
+                manual: 'bg-purple-100 text-purple-700',
+                failed: 'bg-red-100 text-red-700',
+                pending: 'bg-amber-100 text-amber-700',
+                unpaid: 'bg-slate-100 text-slate-700'
+            };
+
+            return `<span class="px-2 py-1 ${classMap[normalized] || classMap.paid} rounded-full text-xs uppercase font-semibold">${escapeHtml(normalized)}</span>`;
+        }
+
+        function buildAttachmentHref(rawHref) {
+            const href = String(rawHref || '');
+            if (!href || href.startsWith('data:')) {
+                return href || '#';
+            }
+
+            const normalized = href.replace(/^https?:\/\/[^/]+/i, '');
+            const match = normalized.match(/^\/(?:uploads\/tickets|api\/support\/attachments)\/(.+)$/i);
+            if (!match) {
+                return href;
+            }
+
+            const url = new URL(`/api/support/attachments/${match[1]}`, window.location.origin);
+            if (token) {
+                url.searchParams.set('token', token);
+            }
+
+            return `${url.pathname}${url.search}`;
+        }
+
+        function renderAttachmentLinks(attachments, variant = 'light') {
+            if (!attachments || attachments.length === 0) {
+                return '';
+            }
+
+            const isDark = variant === 'dark';
+            const cardClasses = isDark
+                ? 'rounded-xl border border-white/10 bg-white/5 p-3 text-white'
+                : 'rounded-xl border border-slate-200 bg-white p-3 text-slate-800';
+            const mutedClasses = isDark ? 'text-white/70' : 'text-slate-500';
+            const primaryActionClasses = isDark
+                ? 'inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white hover:bg-white/20'
+                : 'inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200';
+            const secondaryActionClasses = isDark
+                ? 'inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/20 px-3 py-2 text-xs font-medium text-emerald-100 hover:bg-emerald-500/30'
+                : 'inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100';
+
+            return `
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                    ${attachments.map((attachment) => `
+                        ${(() => {
+                            const rawHref = attachment.url || attachment.dataUrl || '#';
+                            const resolvedHref = buildAttachmentHref(rawHref);
+                            const href = escapeHtml(resolvedHref);
+                            const type = String(attachment.type || 'file');
+                            const isImage = type.startsWith('image/');
+                            const isPdf = type === 'application/pdf';
+                            const preview = isImage
+                                ? `<button type="button" onclick='openImageLightbox(${JSON.stringify(resolvedHref)}, ${JSON.stringify(attachment.name || 'Attachment preview')})' class="block w-full overflow-hidden rounded-lg border ${isDark ? 'border-white/10' : 'border-slate-200'}"><img src="${href}" alt="${escapeHtml(attachment.name)}" class="h-32 w-full object-cover transition-transform hover:scale-[1.02]"></button>`
+                                : `<div class="flex h-32 items-center justify-center rounded-lg border ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'} text-center"><div><i class="fa-solid ${isPdf ? 'fa-file-pdf' : 'fa-file-lines'} text-2xl ${isPdf ? (isDark ? 'text-red-300' : 'text-red-500') : (isDark ? 'text-sky-200' : 'text-sky-500')}"></i><div class="mt-2 text-xs ${mutedClasses}">${isPdf ? 'PDF preview available' : 'Attachment ready to open'}</div></div></div>`;
+                            const openLabel = isPdf ? 'Open PDF' : isImage ? 'Open image' : 'Open file';
+
+                            return `
+                                <div class="${cardClasses}">
+                                    ${preview}
+                                    <div class="mt-3">
+                                        <div class="break-all text-sm font-medium">${escapeHtml(attachment.name)}</div>
+                                        <div class="mt-1 text-xs ${mutedClasses}">${escapeHtml(getAttachmentTypeLabel(type))} • ${formatFileSize(attachment.size)}</div>
+                                    </div>
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        <a href="${href}" target="_blank" rel="noreferrer" class="${primaryActionClasses}">
+                                            <i class="fa-solid fa-up-right-from-square"></i>
+                                            <span>${openLabel}</span>
+                                        </a>
+                                        <a href="${href}" download="${escapeHtml(attachment.name)}" class="${secondaryActionClasses}">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>Download</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        })()}
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getSelectedFiles(inputId) {
+            return Array.from(document.getElementById(inputId)?.files || []);
+        }
+
+        function renderPendingAttachments(inputId, previewId) {
+            const preview = document.getElementById(previewId);
+            const files = getSelectedFiles(inputId);
+
+            if (!preview) return;
+
+            if (files.length === 0) {
+                preview.innerHTML = '';
+                preview.classList.add('hidden');
+                return;
+            }
+
+            preview.classList.remove('hidden');
+            preview.innerHTML = files.map((file, index) => `
+                <div class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                    <div>
+                        <div class="font-medium text-slate-900">${escapeHtml(file.name)}</div>
+                        <div class="text-xs text-slate-500">${escapeHtml(getAttachmentTypeLabel(file.type))} • ${formatFileSize(file.size)}</div>
+                    </div>
+                    <button type="button" onclick="removePendingAttachment('${inputId}', '${previewId}', ${index})" class="rounded-lg bg-white px-3 py-2 text-xs font-medium text-red-600 shadow-sm hover:bg-red-50">
+                        Remove
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removePendingAttachment(inputId, previewId, indexToRemove) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const nextFiles = new DataTransfer();
+            getSelectedFiles(inputId).forEach((file, index) => {
+                if (index !== indexToRemove) {
+                    nextFiles.items.add(file);
+                }
+            });
+
+            input.files = nextFiles.files;
+            renderPendingAttachments(inputId, previewId);
+        }
+
+        function parseTicketResponses(ticket) {
+            if (!ticket?.responses) return [];
+
+            try {
+                return typeof ticket.responses === 'string' ? JSON.parse(ticket.responses) : ticket.responses;
+            } catch (error) {
+                console.error('Failed to parse ticket responses', error);
+                return [];
+            }
+        }
+
+        function getInitialTicketEntry(ticket) {
+            return parseTicketResponses(ticket).find((entry) => entry.isInitial) || null;
+        }
+
+        async function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function collectAttachments(inputId) {
+            const files = getSelectedFiles(inputId);
+
+            if (files.length === 0) {
+                return [];
+            }
+
+            if (files.length > 3) {
+                throw new Error('You can attach up to 3 files per message');
+            }
+
+            return Promise.all(files.map(async (file) => {
+                if (file.size > 2 * 1024 * 1024) {
+                    throw new Error(`${file.name} is larger than 2 MB`);
+                }
+
+                return {
+                    name: file.name,
+                    type: file.type || 'application/octet-stream',
+                    size: file.size,
+                    dataUrl: await readFileAsDataUrl(file)
+                };
+            }));
+        }
+
+        function clearAttachmentInput(inputId) {
+            const input = document.getElementById(inputId);
+            if (input) input.value = '';
+
+            const previewId = {
+                'admin-reply-attachments': 'admin-reply-attachments-preview'
+            }[inputId];
+
+            if (previewId) {
+                renderPendingAttachments(inputId, previewId);
+            }
+        }
+
+        function openImageLightbox(src, label) {
+            document.getElementById('image-lightbox-image').src = src;
+            document.getElementById('image-lightbox-caption').textContent = label || 'Attachment preview';
+            document.getElementById('image-lightbox').classList.remove('hidden');
+        }
+
+        function closeImageLightbox() {
+            document.getElementById('image-lightbox').classList.add('hidden');
+            document.getElementById('image-lightbox-image').src = '';
+        }
+
+        function isWithinDays(dateValue, days) {
+            if (days === 'all') return true;
+            const date = new Date(dateValue);
+            const diff = Date.now() - date.getTime();
+            return diff <= Number(days) * 24 * 60 * 60 * 1000;
+        }
+
+        // === INIT ===
+        if (token) showDashboard();
+
+        // === NAVIGATION ===
+        function switchTab(viewName) {
+            // Hide all views
+            ['dashboard', 'customers', 'finance', 'settings', 'tickets'].forEach(v => {
+                const view = document.getElementById(`view-${v}`);
+                if (view) view.classList.add('hidden');
+                const nav = document.getElementById(`nav-${v}`);
+                if (nav) {
+                    nav.classList.remove('active', 'bg-primary-600', 'text-white', 'shadow-lg');
+                    nav.classList.add('text-slate-400');
+                }
+            });
+
+            // Show selected
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            const nav = document.getElementById(`nav-${viewName}`);
+            nav.classList.add('active', 'bg-primary-600', 'text-white', 'shadow-lg');
+            nav.classList.remove('text-slate-400');
+
+            // Update Title
+            const titles = {
+                dashboard: "Dashboard Overview",
+                customers: "Customer Management",
+                finance: "Financial Reports",
+                tickets: "Support Tickets",
+                settings: "System Settings"
+            };
+            document.getElementById('page-title').innerText = titles[viewName] || "Dashboard";
+            currentView = viewName;
+
+            if (viewName === 'tickets') refreshTickets();
+            if (viewName === 'settings') fetchCleanupHistory();
+        }
+
+        // === TICKET LOGIC ===
+        async function refreshTickets() {
+            const tbody = document.getElementById('tickets-table-body');
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading tickets...</td></tr>';
+
+            try {
+                const res = await fetch(`${API_URL}/admin/tickets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success && data.data) {
+                    allTickets = data.data;
+                    const openCount = data.data.filter(t => t.status === 'open').length;
+                    const badge = document.getElementById('ticket-count-badge');
+                    if (openCount > 0) {
+                        badge.innerText = openCount;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                    applyTicketFilters();
+                }
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-400">Failed to load tickets.</td></tr>';
+            }
+        }
+
+        function renderTicketsTable(tickets) {
+            const tbody = document.getElementById('tickets-table-body');
+            const ticketCount = document.getElementById('ticket-filter-count');
+
+            ticketCount.innerText = `${tickets.length} ticket${tickets.length === 1 ? '' : 's'} shown`;
+
+            if (tickets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No tickets match the current filters.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tickets.map((ticket) => {
+                const initialEntry = getInitialTicketEntry(ticket);
+                const attachmentCount = initialEntry?.attachments?.length || 0;
+
+                return `
+                    <tr class="hover:bg-gray-50 bg-white border-b border-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500">#${ticket.id}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">${escapeHtml(ticket.subject)}</div>
+                            <div class="text-xs text-gray-400">${escapeHtml(ticket.category)}${attachmentCount ? ` • ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}` : ''}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">${escapeHtml(ticket.pharmacy?.name || 'Unknown')}</div>
+                            <div class="text-xs text-gray-500">${escapeHtml(ticket.pharmacy?.email || '')}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${ticket.status === 'open' ? 'bg-blue-100 text-blue-700' : ticket.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${escapeHtml(ticket.status)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">${formatDate(ticket.createdAt)}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="openTicketModal(${ticket.id})" class="text-primary-600 hover:text-primary-800 font-medium text-xs bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors border border-primary-200">
+                                <i class="fa-solid fa-message mr-1"></i> Reply
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function applyTicketFilters() {
+            const search = document.getElementById('ticket-search').value.trim().toLowerCase();
+            const status = document.getElementById('ticket-status-filter').value;
+
+            const filtered = allTickets.filter((ticket) => {
+                const matchesSearch = !search || [ticket.subject, ticket.category, ticket.pharmacy?.name, ticket.pharmacy?.email]
+                    .filter(Boolean)
+                    .some((value) => String(value).toLowerCase().includes(search));
+                const matchesStatus = status === 'all' || ticket.status === status;
+                return matchesSearch && matchesStatus;
+            });
+
+            renderTicketsTable(filtered);
+        }
+
+        function openTicketModal(id) {
+            const ticket = allTickets.find(t => t.id === id);
+            if (!ticket) return;
+
+            currentTicketId = id;
+            document.getElementById('ticket-modal-id').innerText = id;
+            document.getElementById('ticket-modal-subject').innerText = ticket.subject;
+
+            const chatArea = document.getElementById('ticket-chat-area');
+            const initialEntry = getInitialTicketEntry(ticket);
+            let html = `
+                <div class="flex flex-col gap-1 items-start">
+                    <div class="bg-white border border-gray-200 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[80%]">
+                        <p class="text-sm text-gray-800">${escapeHtml(ticket.message)}</p>
+                        ${renderAttachmentLinks(initialEntry?.attachments, 'light')}
+                    </div>
+                    <span class="text-[10px] text-gray-400 pl-1">Initial Request • ${formatDateTime(ticket.createdAt)}</span>
+                </div>
+            `;
+
+            parseTicketResponses(ticket)
+                .filter((response) => !response.isInitial)
+                .forEach((response) => {
+                    const isAdmin = response.sender === 'admin';
+                    html += `
+                        <div class="flex flex-col gap-1 ${isAdmin ? 'items-end' : 'items-start'}">
+                            <div class="${isAdmin ? 'bg-primary-600 text-white rounded-tr-none' : 'bg-white border border-gray-200 rounded-tl-none'} p-3 rounded-lg shadow-sm max-w-[80%]">
+                                <p class="text-sm ${isAdmin ? 'text-white' : 'text-gray-800'}">${escapeHtml(response.message || '(Attachment)')}</p>
+                                ${renderAttachmentLinks(response.attachments, isAdmin ? 'dark' : 'light')}
+                            </div>
+                            <span class="text-[10px] text-gray-400 ${isAdmin ? 'pr-1' : 'pl-1'}">${escapeHtml(response.name || response.sender)} • ${formatDateTime(response.date)}</span>
+                        </div>`;
+                });
+
+            chatArea.innerHTML = html;
+            document.getElementById('ticket-modal').classList.remove('hidden');
+            setTimeout(() => { chatArea.scrollTop = chatArea.scrollHeight; }, 100);
+        }
+
+        function closeTicketModal() {
+            document.getElementById('ticket-modal').classList.add('hidden');
+            currentTicketId = null;
+        }
+
+        async function sendReply() {
+            const input = document.getElementById('reply-input');
+            const message = input.value.trim();
+            try {
+                const attachments = await collectAttachments('admin-reply-attachments');
+                if (!message && attachments.length === 0) {
+                    throw new Error('Add a message or at least one attachment');
+                }
+                const res = await fetch(`${API_URL}/admin/tickets/${currentTicketId}/reply`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ message, attachments })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    input.value = '';
+                    clearAttachmentInput('admin-reply-attachments');
+                    refreshTickets().then(() => openTicketModal(currentTicketId));
+                } else { alert('Failed: ' + (data.error?.message || 'Error')); }
+            } catch (e) { alert(e.message || 'Network Error'); }
+        }
+
+        async function resolveTicket(id) {
+            // Confirmation is already good, keep it
+            if (!confirm('Mark ticket #' + id + ' as Resolved?')) return;
+
+            // UI Feedback
+            const btn = document.getElementById('btn-resolve-ticket');
+            let originalText = '';
+            if (btn) {
+                originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/admin/tickets/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ status: 'resolved' })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Server status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    // Success feedback
+                    alert('Ticket marked as Resolved.');
+                    refreshTickets();
+                    closeTicketModal();
+                } else {
+                    throw new Error(data.error?.message || 'Failed to resolve ticket');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error: ' + e.message);
+            } finally {
+                // Restore button state
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        // === AUTHENTICATION ===
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const err = document.getElementById('login-error');
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Signing in...';
+            btn.disabled = true;
+            err.classList.add('hidden');
+
+            try {
+                let response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = "Invalid credentials"; // Default
+                    try { errorMessage = JSON.parse(errorText).error?.message || errorMessage; } catch (e) { }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                const tokenData = data.token || (data.data && data.data.token);
+                // The backend user object might be nested differently, let's be safe
+                const userData = data.user || (data.data && data.data.user);
+
+                if (tokenData && userData) {
+                    // ONLY allow superadmin user, NOT pharmacy admins or demo users
+                    if (userData.username === 'superadmin') {
+                        token = tokenData;
+                        localStorage.setItem('admin_token', token);
+                        localStorage.setItem('pharmasoft_token', tokenData);
+                        localStorage.setItem('pharmasoft_user', JSON.stringify(userData));
+                        showDashboard();
+                    } else {
+                        throw new Error('Access Restricted: Superadmin only. Pharmacy users should use /dashboard-user.html');
+                    }
+                } else { throw new Error('No token received'); }
+
+            } catch (error) {
+                err.querySelector('span').innerText = error.message;
+                err.classList.remove('hidden');
+                btn.innerText = 'Access Dashboard';
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            token = null;
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('pharmasoft_token');
+            localStorage.removeItem('pharmasoft_user');
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('app-container').classList.add('fade-in');
+
+            // Default to dashboard
+            switchTab('dashboard');
+
+            document.getElementById('search').addEventListener('input', applyCustomerFilters);
+            document.getElementById('customer-plan-filter').addEventListener('change', applyCustomerFilters);
+            document.getElementById('customer-status-filter').addEventListener('change', applyCustomerFilters);
+            document.getElementById('customer-signup-filter').addEventListener('change', applyCustomerFilters);
+            document.getElementById('ticket-search').addEventListener('input', applyTicketFilters);
+            document.getElementById('ticket-status-filter').addEventListener('change', applyTicketFilters);
+            document.getElementById('finance-search').addEventListener('input', applyFinanceFilters);
+            document.getElementById('finance-plan-filter').addEventListener('change', applyFinanceFilters);
+            document.getElementById('finance-status-filter').addEventListener('change', applyFinanceFilters);
+            document.getElementById('finance-source-filter').addEventListener('change', applyFinanceFilters);
+            document.getElementById('admin-reply-attachments').addEventListener('change', () => renderPendingAttachments('admin-reply-attachments', 'admin-reply-attachments-preview'));
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeImageLightbox();
+                }
+            });
+
+            loadData();
+            fetchCleanupHistory();
+            setInterval(loadData, 15000);
+        }
+
+        // === DATA LOADING ===
+        async function loadData() {
+            try {
+                const headers = { 'Authorization': `Bearer ${token}` };
+                const [statsRes, pharmsRes, billingRes, productsRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/stats`, { headers }),
+                    fetch(`${API_URL}/admin/pharmacies`, { headers }),
+                    fetch(`${API_URL}/admin/billing/overview`, { headers }),
+                    fetch(`${API_URL}/admin/products`, { headers })
+                ]);
+
+                if (statsRes.status === 401) { logout(); return; }
+
+                const stats = await statsRes.json();
+                const pharms = await pharmsRes.json();
+                const billing = await billingRes.json();
+                const products = await productsRes.json();
+
+                if (stats.success) updateStats(stats.data);
+                if (pharms.success) {
+                    allPharmacies = pharms.data;
+                    applyCustomerFilters();
+                }
+                if (billing.success) {
+                    billingOverview = billing.data;
+                    renderFinanceOverview();
+                }
+                if (products.success) {
+                    productCatalog = products.data;
+                    renderProductPricing();
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function renderProductPricing() {
+            const list = document.getElementById('product-pricing-list');
+            if (!list) return;
+
+            if (!productCatalog.length) {
+                list.innerHTML = '<div class="text-sm text-gray-400">No products available.</div>';
+                return;
+            }
+
+            list.innerHTML = productCatalog.map((product) => {
+                const plans = Object.entries(product.plans || {});
+                return `
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                            <div>
+                                <div class="text-sm font-semibold text-gray-900">${escapeHtml(product.name)}</div>
+                                <div class="text-xs text-gray-500 mt-1">${escapeHtml(product.category)} • web: ${escapeHtml(product.web?.pricing || 'n/a')} • desktop: ${escapeHtml(product.desktop?.pricing || 'n/a')}</div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-600">
+                                <input id="pricing-purchasable-${escapeHtml(product.id)}" type="checkbox" class="rounded border-gray-300" ${product.purchasable ? 'checked' : ''}>
+                                Self-service purchase enabled
+                            </label>
+                        </div>
+                        ${plans.length ? `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${plans.map(([planId, plan]) => `
+                                    <div class="rounded-xl bg-white border border-gray-200 p-3">
+                                        <div class="flex items-center justify-between gap-3 mb-2">
+                                            <div>
+                                                <div class="text-sm font-semibold text-gray-900">${escapeHtml(plan.label || planId)}</div>
+                                                <div class="text-xs text-gray-500 uppercase">${escapeHtml(plan.tier || '')}</div>
+                                            </div>
+                                            <div class="w-28">
+                                                <label class="text-[11px] text-gray-500 uppercase">Price</label>
+                                                <input data-product-id="${escapeHtml(product.id)}" data-plan-id="${escapeHtml(planId)}" type="number" min="0" step="0.01" value="${escapeHtml(plan.amount)}" class="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white">
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="text-sm text-gray-500">No self-service plans configured for this product yet.</div>'}
+                        <div class="mt-4 flex items-center gap-3">
+                            <button onclick="saveProductPricing('${escapeHtml(product.id)}')" class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm">Save Pricing</button>
+                            <span id="pricing-status-${escapeHtml(product.id)}" class="text-xs text-gray-500"></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function saveProductPricing(productId) {
+            const status = document.getElementById(`pricing-status-${productId}`);
+            const purchasable = document.getElementById(`pricing-purchasable-${productId}`)?.checked || false;
+            const planInputs = Array.from(document.querySelectorAll(`input[data-product-id="${productId}"]`));
+            const plans = {};
+
+            planInputs.forEach((input) => {
+                plans[input.dataset.planId] = { amount: Number(input.value || 0) };
+            });
+
+            status.innerText = 'Saving...';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ purchasable, plans })
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error?.message || 'Failed to save pricing');
+                }
+
+                status.innerText = 'Saved';
+                await loadData();
+            } catch (error) {
+                console.error(error);
+                status.innerText = error.message || 'Save failed';
+            }
+        }
+
+        async function createProduct() {
+            const status = document.getElementById('new-product-status');
+            const payload = {
+                id: document.getElementById('new-product-id').value.trim(),
+                name: document.getElementById('new-product-name').value.trim(),
+                category: document.getElementById('new-product-category').value.trim(),
+                purchasable: document.getElementById('new-product-purchasable').checked,
+                web: {
+                    access: 'account_required',
+                    pricing: document.getElementById('new-product-web-pricing').value,
+                },
+                desktop: {
+                    access: 'purchase_required',
+                    pricing: document.getElementById('new-product-desktop-pricing').value,
+                    demoPublic: false,
+                },
+                plans: {
+                    monthly: document.getElementById('new-product-monthly').value,
+                    yearly: document.getElementById('new-product-yearly').value,
+                    enterprise: document.getElementById('new-product-enterprise').value,
+                    lifetime: document.getElementById('new-product-lifetime').value,
+                },
+            };
+
+            status.innerText = 'Creating...';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error?.message || 'Failed to create product');
+                }
+
+                status.innerText = 'Created';
+                ['new-product-id', 'new-product-name', 'new-product-category', 'new-product-monthly', 'new-product-yearly', 'new-product-enterprise', 'new-product-lifetime'].forEach((id) => {
+                    document.getElementById(id).value = '';
+                });
+                document.getElementById('new-product-purchasable').checked = false;
+                document.getElementById('new-product-web-pricing').value = 'free';
+                document.getElementById('new-product-desktop-pricing').value = 'paid';
+                await loadData();
+            } catch (error) {
+                console.error(error);
+                status.innerText = error.message || 'Create failed';
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-total').innerText = data.total;
+            document.getElementById('stat-total-revenue').innerText = formatCurrency(data.mrr || 0);
+            document.getElementById('stat-trials').innerText = data.trials;
+            document.getElementById('stat-paid').innerText = data.paid;
+            renderCharts(data);
+        }
+
+        function applyCustomerFilters() {
+            const search = document.getElementById('search').value.trim().toLowerCase();
+            const plan = document.getElementById('customer-plan-filter').value;
+            const status = document.getElementById('customer-status-filter').value;
+            const signup = document.getElementById('customer-signup-filter').value;
+
+            const filtered = allPharmacies.filter((pharmacy) => {
+                const matchesSearch = !search || [pharmacy.name, pharmacy.email, pharmacy.phone]
+                    .filter(Boolean)
+                    .some((value) => String(value).toLowerCase().includes(search));
+                const matchesPlan = plan === 'all' || pharmacy.subscriptionTier === plan;
+                const matchesStatus = status === 'all' || (status === 'active' ? pharmacy.isActive : !pharmacy.isActive);
+                const matchesSignup = signup === 'all' || isWithinDays(pharmacy.createdAt, signup);
+                return matchesSearch && matchesPlan && matchesStatus && matchesSignup;
+            });
+
+            document.getElementById('customer-filter-count').innerText = `${filtered.length} ${filtered.length === 1 ? 'pharmacy' : 'pharmacies'} shown`;
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('pharmacy-table-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No pharmacies match the current filters.</td></tr>';
+                return;
+            }
+
+            data.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50/50 transition-colors group";
+
+                const statusHtml = p.isActive
+                    ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>`
+                    : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Suspended</span>`;
+
+                let planColor = 'bg-gray-100 text-gray-800';
+                if (p.subscriptionTier === 'professional') planColor = 'bg-blue-100 text-blue-800';
+                if (p.subscriptionTier === 'enterprise') planColor = 'bg-purple-100 text-purple-800';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
+                                ${escapeHtml(p.name.charAt(0).toUpperCase())}
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium text-gray-900">${escapeHtml(p.name)}</div>
+                                <div class="text-xs text-gray-500">${escapeHtml(p.email || 'No email')}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">${escapeHtml(p.phone || 'N/A')}</td>
+                    <td class="px-6 py-4">${statusHtml}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex px-2.5 py-0.5 rounded-md text-xs font-medium capitalize border border-transparent ${planColor}">
+                            ${formatTier(p.subscriptionTier)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right text-gray-500">${formatDate(p.createdAt)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="openModal(${p.id}, '${p.name.replace(/'/g, "\\'")}', ${p.isActive})" class="text-gray-400 hover:text-primary-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderFinanceOverview() {
+            document.getElementById('finance-total-revenue').innerText = formatCurrency(billingOverview.totalRevenue);
+            document.getElementById('finance-upcoming-renewals').innerText = String(billingOverview.upcomingRenewals ?? 0);
+            document.getElementById('finance-failed-payments').innerText = String(billingOverview.failedPayments ?? 0);
+
+            applyFinanceFilters();
+        }
+
+        function renderFinanceTransactions(transactions) {
+            const tbody = document.getElementById('finance-transactions-body');
+            const count = document.getElementById('finance-filter-count');
+
+            count.innerText = `${transactions.length} transaction${transactions.length === 1 ? '' : 's'} shown`;
+
+            if (transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No transactions match the current filters.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transactions.map((transaction) => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">${escapeHtml(transaction.date)}</td>
+                    <td class="px-6 py-4 font-medium">${escapeHtml(transaction.pharmacyName || 'Unknown')}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">${escapeHtml(transaction.description)}</div>
+                        <div class="text-xs text-gray-500">${escapeHtml(transaction.plan || 'unknown')} • ${escapeHtml(transaction.source || 'self-service')}</div>
+                    </td>
+                    <td class="px-6 py-4 text-right">${formatCurrency(transaction.amount)}</td>
+                    <td class="px-6 py-4 text-center">${getFinanceStatusBadge(transaction.status)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function applyFinanceFilters() {
+            const search = document.getElementById('finance-search').value.trim().toLowerCase();
+            const plan = document.getElementById('finance-plan-filter').value;
+            const status = document.getElementById('finance-status-filter').value;
+            const source = document.getElementById('finance-source-filter').value;
+
+            const filtered = (billingOverview.recentTransactions || []).filter((transaction) => {
+                const matchesSearch = !search || [transaction.id, transaction.pharmacyName, transaction.description, transaction.source, transaction.plan]
+                    .filter(Boolean)
+                    .some((value) => String(value).toLowerCase().includes(search));
+                const matchesPlan = plan === 'all' || transaction.plan === plan;
+                const matchesStatus = status === 'all' || String(transaction.status || '').toLowerCase() === status;
+                const matchesSource = source === 'all' || String(transaction.source || '').toLowerCase() === source;
+                return matchesSearch && matchesPlan && matchesStatus && matchesSource;
+            });
+
+            renderFinanceTransactions(filtered);
+        }
+
+        function renderCleanupHistory() {
+            const list = document.getElementById('cleanup-history-list');
+
+            if (!cleanupHistory.length) {
+                list.innerHTML = '<div class="text-sm text-gray-400">No cleanup runs recorded yet.</div>';
+                return;
+            }
+
+            list.innerHTML = cleanupHistory.map((entry) => `
+                <div class="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900">${escapeHtml(entry.trigger || 'manual')} cleanup</div>
+                            <div class="mt-1 text-xs text-gray-500">Completed ${formatDateTime(entry.completedAt)} • retention ${escapeHtml(entry.maxAgeDays)} days</div>
+                        </div>
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">${escapeHtml(entry.id)}</span>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-3 text-xs text-gray-600 sm:grid-cols-4">
+                        <div><span class="font-semibold text-gray-900">Removed files:</span> ${escapeHtml(entry.removedFiles)}</div>
+                        <div><span class="font-semibold text-gray-900">Removed dirs:</span> ${escapeHtml(entry.removedDirectories)}</div>
+                        <div><span class="font-semibold text-gray-900">Kept refs:</span> ${escapeHtml(entry.keptReferencedFiles)}</div>
+                        <div><span class="font-semibold text-gray-900">Scanned dirs:</span> ${escapeHtml(entry.scannedDirectories)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function fetchCleanupHistory() {
+            const list = document.getElementById('cleanup-history-list');
+            list.innerHTML = '<div class="text-sm text-gray-400">Loading cleanup history...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/uploads/history`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error?.message || 'Failed to load cleanup history');
+                }
+
+                cleanupHistory = Array.isArray(data.data) ? data.data : [];
+                renderCleanupHistory();
+            } catch (error) {
+                console.error(error);
+                list.innerHTML = `<div class="text-sm text-red-400">${escapeHtml(error.message || 'Failed to load cleanup history')}</div>`;
+            }
+        }
+
+        async function cleanupUploads() {
+            const button = document.getElementById('cleanup-uploads-btn');
+            const result = document.getElementById('cleanup-uploads-result');
+            const originalText = button.innerText;
+
+            button.disabled = true;
+            button.innerText = 'Cleaning...';
+            result.innerText = '';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/uploads/cleanup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error?.message || 'Upload cleanup failed');
+                }
+
+                result.innerText = `Removed ${data.data.removedFiles} files, ${data.data.removedDirectories} folders. Kept ${data.data.keptReferencedFiles} referenced files.`;
+                await fetchCleanupHistory();
+            } catch (error) {
+                console.error(error);
+                result.innerText = error.message || 'Cleanup failed';
+            } finally {
+                button.disabled = false;
+                button.innerText = originalText;
+            }
+        }
+
+        // === ACTION LOGIC ===
+        function openModal(id, name, isActive) {
+            currentModalId = id;
+            document.getElementById('modal-id').innerText = id;
+            document.getElementById('modal-title').innerText = name;
+            document.getElementById('modal').classList.remove('hidden');
+
+            const btnSuspend = document.getElementById('btn-suspend');
+            const btnActivate = document.getElementById('btn-activate');
+
+            if (isActive) {
+                btnSuspend.classList.remove('hidden');
+                btnActivate.classList.add('hidden');
+            } else {
+                btnSuspend.classList.add('hidden');
+                btnActivate.classList.remove('hidden');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            currentModalId = null;
+        }
+
+        async function performAction(action, tier) {
+            if (!currentModalId) return;
+            const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+
+            try {
+                let url = `${API_URL}/admin/pharmacy/${currentModalId}/`;
+                let body = {};
+
+                if (action === 'upgrade') { url += 'upgrade'; body = { tier, durationMonths: 12 }; }
+                else if (action === 'suspend') url += 'suspend';
+                else if (action === 'reactivate') url += 'reactivate';
+
+                const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+                const data = await res.json();
+
+                if (data.success) {
+                    closeModal();
+                    loadData();
+                    alert('✅ Action successful!');
+                } else {
+                    alert('❌ Failed: ' + (data.error?.message || 'Unknown error'));
+                }
+            } catch (err) { alert('❌ Network error'); }
+        }
+
+        function renderCharts(data) {
+            const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+            const revCtx = document.getElementById('revenueChart');
+            if (revCtx) {
+                if (chartInstances.rev) chartInstances.rev.destroy();
+                chartInstances.rev = new Chart(revCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{ label: 'Revenue', data: [0, 0, 50, 100, 150, data.mrr], borderColor: '#2563eb', fill: true, tension: 0.4 }]
+                    },
+                    options: commonOptions
+                });
+            }
+            const tierCtx = document.getElementById('tierChart');
+            if (tierCtx) {
+                if (chartInstances.tier) chartInstances.tier.destroy();
+                chartInstances.tier = new Chart(tierCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Free', 'Professional', 'Enterprise'],
+                        datasets: [{ data: [data.free, data.professional, data.enterprise], backgroundColor: ['#f3f4f6', '#3b82f6', '#9333ea'], borderWidth: 0 }]
+                    },
+                    options: { ...commonOptions, cutout: '70%' }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

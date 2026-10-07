@@ -7,6 +7,7 @@ import invoiceService from '../services/InvoiceService';
 import { ProductService } from '../services/database.service';
 import { formatPrice } from '../utils/calculations';
 import { calculateCNAM } from '../utils/cnam';
+import { VAT_RATE } from '../constants';
 import type { Product } from '@repo/database';
 
 interface InvoiceGeneratorProps {
@@ -181,10 +182,14 @@ export default function InvoiceGenerator({
             patientTotal += item.patientAmount;
         });
 
+        const taxAmount = subtotal * VAT_RATE;
+
         return {
             subtotal: Number(subtotal.toFixed(3)),
+            taxAmount: Number(taxAmount.toFixed(3)),
+            totalAmount: Number((subtotal + taxAmount).toFixed(3)),
             cnamAmount: Number(cnamTotal.toFixed(3)),
-            patientAmount: Number(patientTotal.toFixed(3))
+            patientAmount: Number((patientTotal + taxAmount).toFixed(3))
         };
     };
 
@@ -508,6 +513,14 @@ export default function InvoiceGenerator({
                         <div>
                             <div className="text-xs text-gray-500 mb-1">Subtotal</div>
                             <div className="text-lg font-bold text-gray-100">{formatPrice(totals.subtotal)}</div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-gray-500 mb-1">TVA ({(VAT_RATE * 100).toFixed(0)}%)</div>
+                            <div className="text-lg font-bold text-gray-100">{formatPrice(totals.taxAmount)}</div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-gray-500 mb-1">Total TTC</div>
+                            <div className="text-lg font-bold text-primary">{formatPrice(totals.totalAmount)}</div>
                         </div>
                         {totals.cnamAmount > 0 && (
                             <>

@@ -1,7 +1,7 @@
 // Customer Management Service
 // Provides API interactions for customer CRUD operations
 
-import { API_BASE_URL } from '../config';
+import { apiFetch } from './database.service';
 
 export interface Customer {
     id: number;
@@ -32,6 +32,9 @@ export interface CustomerFormData {
 export interface CustomerListResponse {
     success: boolean;
     data: Customer[];
+    error?: {
+        message?: string;
+    };
     pagination: {
         page: number;
         limit: number;
@@ -43,6 +46,9 @@ export interface CustomerListResponse {
 export interface CustomerResponse {
     success: boolean;
     data: Customer;
+    error?: {
+        message?: string;
+    };
 }
 
 export interface CustomerSearchParams {
@@ -53,6 +59,11 @@ export interface CustomerSearchParams {
 }
 
 class CustomerService {
+    private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+        const result = await apiFetch<T>(endpoint, options);
+        return result;
+    }
+
     /**
      * Get all customers with pagination and search
      */
@@ -66,14 +77,13 @@ class CustomerService {
             queryParams.append('customerType', params.customerType);
         }
 
-        const url = `${API_BASE_URL}/customers?${queryParams.toString()}`;
-        const response = await fetch(url);
+        const result = await this.request<CustomerListResponse>(`/customers?${queryParams.toString()}`);
 
-        if (!response.ok) {
+        if (!result.success) {
             throw new Error('Failed to fetch customers');
         }
 
-        return response.json();
+        return result;
     }
 
     /**
@@ -85,31 +95,25 @@ class CustomerService {
             limit: limit.toString()
         });
 
-        const url = `${API_BASE_URL}/customers/search?${queryParams.toString()}`;
-        const response = await fetch(url);
+        const result = await this.request<{ success: boolean; data: Customer[] }>(`/customers/search?${queryParams.toString()}`);
 
-        if (!response.ok) {
+        if (!result.success) {
             throw new Error('Failed to search customers');
         }
 
-        return response.json();
+        return result;
     }
 
     /**
      * Create a new customer
      */
     async create(data: CustomerFormData): Promise<CustomerResponse> {
-        const response = await fetch(`${API_BASE_URL}/customers`, {
+        const result = await this.request<CustomerResponse>('/customers', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to create customer');
         }
 
@@ -120,31 +124,25 @@ class CustomerService {
      * Get customer by ID
      */
     async getById(id: number): Promise<CustomerResponse> {
-        const response = await fetch(`${API_BASE_URL}/customers/${id}`);
+        const result = await this.request<CustomerResponse>(`/customers/${id}`);
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error?.message || 'Failed to fetch customer');
+        if (!result.success) {
+            throw new Error(result.error?.message || 'Failed to fetch customer');
         }
 
-        return response.json();
+        return result;
     }
 
     /**
      * Update customer
      */
     async update(id: number, data: Partial<CustomerFormData>): Promise<CustomerResponse> {
-        const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+        const result = await this.request<CustomerResponse>(`/customers/${id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to update customer');
         }
 
@@ -155,34 +153,27 @@ class CustomerService {
      * Delete customer
      */
     async delete(id: number): Promise<{ success: boolean }> {
-        const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+        const result = await this.request<{ success: boolean; error?: { message?: string } }>(`/customers/${id}`, {
             method: 'DELETE'
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to delete customer');
         }
 
-        return result;
+        return { success: true };
     }
 
     /**
      * Find or create customer (for POS checkout)
      */
     async findOrCreate(data: { name: string; phone?: string; email?: string }): Promise<CustomerResponse> {
-        const response = await fetch(`${API_BASE_URL}/customers/find-or-create`, {
+        const result = await this.request<CustomerResponse>('/customers/find-or-create', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to find or create customer');
         }
 

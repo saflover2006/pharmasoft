@@ -3,6 +3,7 @@
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { VAT_RATE } from '../constants';
 
 interface InvoiceItem {
     productName: string;
@@ -42,7 +43,7 @@ export function generateInvoicePDF(invoice: Invoice, pharmacyInfo?: any) {
 
     // Pharmacy details
     const pharmacy = pharmacyInfo || {
-        name: 'PharmaBest',
+        name: 'PharmaSOFT',
         address: 'Avenue Habib Bourguiba, Tunis 1000, Tunisia',
         phone: '+216 71 123 456',
         email: 'contact@pharmabest.tn',
@@ -249,7 +250,8 @@ export function generateInvoicePDF(invoice: Invoice, pharmacyInfo?: any) {
 
     if (invoice.taxAmount > 0) {
         yPos += 6;
-        doc.text('TVA (19%):', labelX, yPos, { align: 'right' });
+        const vatRate = invoice.subtotal > 0 ? (invoice.taxAmount / invoice.subtotal) * 100 : VAT_RATE * 100;
+        doc.text(`TVA (${vatRate.toFixed(0)}%):`, labelX, yPos, { align: 'right' });
         doc.text(`${invoice.taxAmount.toFixed(3)} TND`, totalsX + 45, yPos, { align: 'right' });
     }
 

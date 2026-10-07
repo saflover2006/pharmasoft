@@ -5,9 +5,10 @@ import type { Product } from '@repo/database';
 interface QuickStockAddProps {
     onClose: () => void;
     currentUserId: number;
+    t: (key: string) => string;
 }
 
-export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddProps) {
+export default function QuickStockAdd({ onClose, currentUserId, t }: QuickStockAddProps) {
     const [barcode, setBarcode] = useState('');
     const [product, setProduct] = useState<Product | null>(null);
     const [quantity, setQuantity] = useState(1);
@@ -87,7 +88,9 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
                 quantity: quantity,
                 reason: 'reception',
                 notes: notes,
-                userId: currentUserId
+                userId: currentUserId,
+                batchNumber: batchNumber.trim(),
+                expiryDate,
             });
 
             if (result.success) {
@@ -132,7 +135,7 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
                         <svg className="h-7 w-7 mr-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
-                        Quick Stock Addition with Batch Tracking
+                        {t('quickStock.title')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -155,7 +158,7 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
 
                     {/* Barcode Input */}
                     <div className="mb-4">
-                        <label className="label">Barcode / Product Code</label>
+                        <label className="label">{t('quickStock.searchProduct')}</label>
                         <div className="flex gap-2">
                             <input
                                 ref={barcodeInputRef}
@@ -164,7 +167,7 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
                                 onChange={(e) => setBarcode(e.target.value)}
                                 onKeyPress={handleBarcodeKeyPress}
                                 className="flex-1 text-lg font-mono"
-                                placeholder="Scan or type barcode..."
+                                placeholder={t('quickStock.scanOrType')}
                                 disabled={isSearching}
                                 autoFocus
                             />
@@ -173,7 +176,7 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
                                 disabled={isSearching || !barcode}
                                 className="btn-primary px-6"
                             >
-                                {isSearching ? 'Searching...' : 'Search'}
+                                {isSearching ? t('common.loading') : t('common.search')}
                             </button>
                         </div>
                     </div>
@@ -230,7 +233,7 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
 
                             {/* Quantity Input */}
                             <div className="mb-4">
-                                <label className="label">Quantity to Add</label>
+                                <label className="label">{t('quickStock.quantity')}</label>
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -268,10 +271,10 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
                     {/* Message */}
                     {message && (
                         <div className={`p-3 rounded-lg mb-4 ${message.type === 'success'
-                                ? 'bg-success/10 border border-success text-success'
-                                : message.type === 'warning'
-                                    ? 'bg-warning/10 border border-warning text-warning'
-                                    : 'bg-danger/10 border border-danger text-danger'
+                            ? 'bg-success/10 border border-success text-success'
+                            : message.type === 'warning'
+                                ? 'bg-warning/10 border border-warning text-warning'
+                                : 'bg-danger/10 border border-danger text-danger'
                             }`}>
                             {message.text}
                         </div>
@@ -280,7 +283,7 @@ export default function QuickStockAdd({ onClose, currentUserId }: QuickStockAddP
                     {/* Recent Additions */}
                     {recentAdditions.length > 0 && (
                         <div>
-                            <h4 className="font-semibold text-gray-300 mb-2">Recent Additions</h4>
+                            <h4 className="font-semibold text-gray-300 mb-2">{t('quickStock.recentAdditions')}</h4>
                             <div className="space-y-1">
                                 {recentAdditions.map((item, index) => (
                                     <div

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ShiftService } from '../services/database.service';
 import { formatPrice } from '../utils/calculations';
+import type { ShiftRecord } from '../types';
 
 interface ShiftEndModalProps {
-    shift: any;
+    shift: ShiftRecord;
     onShiftEnded: () => void;
     onCancel: () => void;
 }
@@ -32,7 +33,9 @@ export default function ShiftEndModal({ shift, onShiftEnded, onCancel }: ShiftEn
             const result = await ShiftService.endShift(shift.id, amount, note || undefined);
 
             if (result.success) {
-                const { startAmount, expectedAmount, endAmount: actualEnd } = result.data;
+                const { startAmount } = result.data;
+                const expectedAmount = result.data.expectedAmount ?? 0;
+                const actualEnd = result.data.endAmount ?? amount;
                 const difference = actualEnd - expectedAmount;
 
                 let message = `Shift ended successfully!\n\n`;

@@ -7,12 +7,66 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./pharmasoft.db"
+  url      = "file:./dev.db"
+}
+
+// Multi-Pharmacy Support (Multi-Tenant)
+model Pharmacy {
+  id            Int      @id @default(autoincrement())
+  name          String
+  address       String?
+  phone         String?
+  email         String?
+  taxId         String?  // MF number in Tunisia
+  logo          String?
+  subscription  String   @default("professional") // free, professional, enterprise
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  
+  // Cloud Sync Fields (Per-Pharmacy Configuration)
+  cloudEnabled      Boolean   @default(false)  // Enable/disable cloud backup
+  cloudProvider     String?   @default("supabase")  // supabase, aws, etc
+  cloudUrl          String?   // Each pharmacy's own Supabase URL
+  cloudApiKey       String?   // Each pharmacy's own Supabase key
+  cloudBucketName   String?   @default("pharmasoft-backups")
+  lastCloudSync     DateTime?  // Last successful sync timestamp
+  
+  // Subscription & License Fields
+  subscriptionTier      String    @default("free")  // free, professional, enterprise
+  licenseKey            String?   @unique  // Unique license key for desktop app
+  licenseStatus         String    @default("inactive")  // inactive, active, expired, suspended
+  licenseActivatedAt    DateTime?  // When license was first activated
+  licenseExpiresAt      DateTime?  // Subscription expiry date
+  trialEndsAt           DateTime?  // 14-day trial expiry
+  stripeCustomerId      String?   @unique  // Stripe customer ID
+  stripeSubscriptionId  String?   // Stripe subscription ID
+  paymentStatus         String    @default("unpaid")  // unpaid, paid, past_due, canceled
+  maxProducts           Int       @default(100)  // Product limit based on tier
+  maxUsers              Int       @default(1)  // User limit based on tier
+  maxSalesPerMonth      Int       @default(50)  // Sales limit for free tier
+  featuresEnabled       String?   // JSON string of enabled features
+  
+  // Relations
+  users         User[]
+  products      Product[]
+  sales         Sale[]
+  customers     Customer[]
+  invoices      Invoice[]
+  shifts        Shift[]
+  stockAdjustments StockAdjustment[]
+  suppliers     Supplier[]
+  auditLogs     AuditLog[]
+  tickets       Ticket[]
+  notifications Notification[]
+  syncQueue     SyncQueue[]  // Pending sync operations
 }
 
 model Product {
   id              Int        @id @default(autoincrement())
-  barcode         String     @unique
+  pharmacyId      Int
+  barcode         String
   commercial_name String
   public_price    Float
   purchase_price  Float
@@ -33,14 +87,18 @@ model Product {
   updatedAt       DateTime   @updatedAt
   
   // Relations
+  pharmacy        Pharmacy   @relation(fields: [pharmacyId], references: [id])
   saleItems       SaleItem[]
   stockAdjustments StockAdjustment[]
+
+  @@unique([pharmacyId, barcode])
 }
 
 model Customer {
   id            Int      @id @default(autoincrement())
+  pharmacyId    Int
   name          String
-  phone         String?  @unique
+  phone         String?
   email         String?
   address       String?
   taxId         String?  // MF (Matricule Fiscal) or CIN
@@ -51,13 +109,17 @@ model Customer {
   updatedAt     DateTime @updatedAt
   
   // Relations
+  pharmacy      Pharmacy   @relation(fields: [pharmacyId], references: [id])
   sales         Sale[]
   invoices      Invoice[]
+
+  @@unique([pharmacyId, phone])
 }
 
 model Invoice {
   id                Int        @id @default(autoincrement())
-  invoiceNumber     String     @unique  // INV-2024-0001
+  pharmacyId        Int
+  invoiceNumber     String     // INV-2024-0001
   invoiceType       String     @default("detailed") // 'detailed', 'receipt', 'cnam', 'proforma'
   invoiceDate       DateTime   @default(now())
   
@@ -94,6 +156,7 @@ model Invoice {
   updatedAt         DateTime   @updatedAt
   
   // Relations
+  pharmacy          Pharmacy  @relation(fields: [pharmacyId], references: [id])
   items             InvoiceItem[]
   customer          Customer  @relation(fields: [customerId], references: [id])
   sale              Sale?     @relation(fields: [saleId], references: [id], onDelete: SetNull)
@@ -103,6 +166,7 @@ model Invoice {
   @@index([customerId])
   @@index([invoiceDate])
   @@index([createdAt])
+  @@unique([pharmacyId, invoiceNumber])
 }
 
 model InvoiceItem {
@@ -134,6 +198,7 @@ model InvoiceItem {
 
 model Sale {
   id             Int        @id @default(autoincrement())
+  pharmacyId     Int
   timestamp      DateTime   @default(now())
   total_amount   Float
   payment_method String     // e.g., "cash", "card", "check"
@@ -145,6 +210,7 @@ model Sale {
   createdAt      DateTime   @default(now())
   
   // Relations
+  pharmacy       Pharmacy   @relation(fields: [pharmacyId], references: [id])
   items          SaleItem[]
   customer       Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
   user           User?      @relation(fields: [userId], references: [id])
@@ -174,6 +240,7 @@ model SaleItem {
 
 model User {
   id        Int      @id @default(autoincrement())
+  pharmacyId Int
   username  String   @unique
   password  String   // In a real app, hash this!
   role      String   // 'admin' | 'cashier'
@@ -181,14 +248,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+
+  pharmacy  Pharmacy @relation(fields: [pharmacyId], references: [id])
   shifts    Shift[]
   sales     Sale[]
   stockAdjustments StockAdjustment[]
   invoices  Invoice[]
+  auditLogs AuditLog[]
 }
 
 model Shift {
   id             Int       @id @default(autoincrement())
+  pharmacyId     Int
   userId         Int
   startTime      DateTime  @default(now())
   endTime        DateTime?
@@ -199,12 +270,14 @@ model Shift {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
+  pharmacy       Pharmacy  @relation(fields: [pharmacyId], references: [id])
   user           User      @relation(fields: [userId], references: [id])
   sales          Sale[]
 }
 
 model StockAdjustment {
   id          Int      @id @default(autoincrement())
+  pharmacyId  Int
   productId   Int
   quantity    Int      // Positive for addition, negative for removal
   reason      String   // 'damaged', 'expired', 'theft', 'count_error', 'supplier_return', 'other'
@@ -212,6 +285,7 @@ model StockAdjustment {
   userId      Int      // Who made the adjustment
   createdAt   DateTime @default(now())
   
+  pharmacy    Pharmacy @relation(fields: [pharmacyId], references: [id])
   product     Product  @relation(fields: [productId], references: [id])
   user        User     @relation(fields: [userId], references: [id])
   
@@ -221,6 +295,7 @@ model StockAdjustment {
 
 model Supplier {
   id          Int      @id @default(autoincrement())
+  pharmacyId  Int
   name        String
   contact     String?
   phone       String?
@@ -230,4 +305,99 @@ model Supplier {
   notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  pharmacy    Pharmacy @relation(fields: [pharmacyId], references: [id])
+}
+
+// Activity Logging for Security & Audit Trail
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  pharmacyId  Int
+  userId      Int?     // Nullable for system actions
+  action      String   // e.g., "CREATE_SALE", "UPDATE_PRODUCT", "DELETE_USER", "LOGIN"
+  entityType  String?  // e.g., "Sale", "Product", "User"
+  entityId    Int?     // ID of the affected entity
+  details     String?  // JSON string with additional details
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  
+  pharmacy    Pharmacy @relation(fields: [pharmacyId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  @@index([pharmacyId, createdAt])
+  @@index([userId])
+  @@index([action])
+}
+
+// Cloud Sync Queue - Tracks pending sync operations
+model SyncQueue {
+  id            Int      @id @default(autoincrement())
+  pharmacyId    Int
+  operation     String   // CREATE, UPDATE, DELETE
+  entityType    String   // Product, Sale, Customer, etc.
+  entityId      Int
+  data          String   // JSON of the entity data
+  status        String   @default("pending")  // pending, syncing, success, failed
+  retryCount    Int      @default(0)
+  lastError     String?
+  createdAt     DateTime @default(now())
+  syncedAt      DateTime?
+  
+  pharmacy      Pharmacy @relation(fields: [pharmacyId], references: [id])
+  
+  @@index([pharmacyId, status])
+  @@index([createdAt])
+}
+
+// Sync Log - History of all sync operations
+model SyncLog {
+  id            Int      @id @default(autoincrement())
+  pharmacyId    Int
+  operation     String   // full_sync, incremental_sync, conflict_resolution
+  direction     String   // upload, download, bidirectional
+  itemsCount    Int      @default(0)
+  successCount  Int      @default(0)
+  failedCount   Int      @default(0)
+  conflictCount Int      @default(0)
+  duration      Int?     // milliseconds
+  status        String   // success, partial, failed
+  errorMessage  String?
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([pharmacyId, startedAt])
+}
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  pharmacyId  Int
+  subject     String
+  category    String
+  message     String
+  responses   String?  @default("[]") // JSON: [{ sender: 'admin'|'user', message: '...', date: '...' }]
+  status      String   @default("open") // open, in_progress, resolved, closed
+  priority    String   @default("normal")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  pharmacy    Pharmacy @relation(fields: [pharmacyId], references: [id])
+  
+  @@index([pharmacyId])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  pharmacyId  Int
+  title       String
+  message     String
+  read        Boolean  @default(false)
+  type        String   @default("info") // info, success, warning, error
+  link        String?  // Optional link to redirect (e.g., to the ticket)
+  createdAt   DateTime @default(now())
+  
+  pharmacy    Pharmacy @relation(fields: [pharmacyId], references: [id])
+  
+  @@index([pharmacyId])
+  @@index([read])
 }

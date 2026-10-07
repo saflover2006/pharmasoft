@@ -10,6 +10,7 @@ export interface HeldTransaction {
     timestamp: number;
     cart: CartItem[];
     customer: { name: string; phone?: string; id?: number } | null;
+    discount?: Discount | null;
     note?: string;
 }
 
@@ -71,6 +72,39 @@ export interface CartSummary {
     vatRate: number;
     total: number;
     itemCount: number;
+}
+
+export interface AuthenticatedUser {
+    id: number;
+    username: string;
+    name: string;
+    role: 'admin' | 'cashier';
+    pharmacyId: number;
+    pharmacyName?: string;
+    email?: string | null;
+    phone?: string | null;
+    subscriptionTier?: string;
+    licenseKey?: string | null;
+    licenseStatus?: string;
+    trialEndsAt?: string | null;
+    subscriptionMeta?: unknown;
+    isPlatformAdmin?: boolean;
+}
+
+export interface ShiftRecord {
+    id: number;
+    pharmacyId: number;
+    userId: number;
+    startTime: string;
+    endTime?: string | null;
+    startAmount: number;
+    endAmount?: number | null;
+    expectedAmount?: number | null;
+    note?: string | null;
+    user?: {
+        name: string;
+        username: string;
+    };
 }
 
 /**

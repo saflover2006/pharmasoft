@@ -13,12 +13,13 @@ interface CartProps {
     onApplyDiscount?: () => void;
     currentDiscount?: { type: 'percentage' | 'fixed'; value: number; reason?: string } | null;
     onRemoveDiscount?: () => void;
+    t: (key: string) => string;
 }
 
 /**
  * Shopping cart component displaying current sale items
  */
-export default function Cart({ cart, updateQuantity, removeFromCart, summary, customer, onRemoveCustomer, onApplyDiscount, currentDiscount, onRemoveDiscount }: CartProps) {
+export default function Cart({ cart, updateQuantity, removeFromCart, summary, customer, onRemoveCustomer, onApplyDiscount, currentDiscount, onRemoveDiscount, t }: CartProps) {
     /**
      * Handle quantity input change
      */
@@ -48,7 +49,7 @@ export default function Cart({ cart, updateQuantity, removeFromCart, summary, cu
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                         />
                     </svg>
-                    Current Sale
+                    {t('cart.title')}
                 </h2>
 
                 {/* Customer Info */}
@@ -94,9 +95,9 @@ export default function Cart({ cart, updateQuantity, removeFromCart, summary, cu
                                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                             />
                         </svg>
-                        <p className="text-lg font-medium">Cart is empty</p>
+                        <p className="text-lg font-medium">{t('cart.empty')}</p>
                         <p className="text-sm text-gray-600 mt-1">
-                            Search for a product to begin
+                            {t('search.placeholder')}
                         </p>
                     </div>
                 ) : (

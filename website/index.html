@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PharmaSOFT - Pharmacy Management Software</title>
+  <meta name="description" content="PharmaSOFT is the all-in-one pharmacy management software for Tunisia. Free web version. Paid desktop version. Full POS, inventory, CNAM billing."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#10b981;--primary-dark:#059669;--primary-glow:rgba(16,185,129,.25);--dark-bg:#080f1a;--dark-surface:#0d1829;--dark-card:#111e30;--dark-border:rgba(255,255,255,.07);--text-primary:#f0f6ff;--text-secondary:#8ba3c0;--text-muted:#4d6480;--free-color:#10b981;--paid-color:#f59e0b;--paid-glow:rgba(245,158,11,.25);}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--dark-bg);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(16,185,129,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(16,185,129,.03) 1px,transparent 1px);background-size:60px 60px}
+.bg-orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.bg-orb-1{width:700px;height:700px;background:rgba(16,185,129,.08);top:-200px;right:-200px}
+.bg-orb-2{width:500px;height:500px;background:rgba(6,214,160,.05);bottom:20%;left:-150px}
+.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.section-label{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--primary);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin-bottom:1.25rem}
+.section-title{font-size:clamp(2rem,4vw,2.75rem);font-weight:800;line-height:1.15;background:linear-gradient(135deg,#fff 0%,#a5c8f8 60%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem}
+.section-subtitle{color:var(--text-secondary);font-size:1.1rem;max-width:600px;margin-bottom:3.5rem}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:.85rem 1.75rem;border-radius:.65rem;font-weight:700;font-size:.95rem;text-decoration:none;cursor:pointer;border:none;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 4px 24px var(--primary-glow)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(16,185,129,.45)}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--dark-border);color:var(--text-primary)}
+.btn-ghost:hover{background:rgba(255,255,255,.11);transform:translateY(-2px)}
+.btn-contact{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;box-shadow:0 4px 24px var(--paid-glow)}
+.btn-contact:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(245,158,11,.45)}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(8,15,26,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--dark-border);transition:all .3s}
+nav.scrolled{background:rgba(8,15,26,.98);box-shadow:0 4px 30px rgba(0,0,0,.4)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 24px;max-width:1200px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:900;color:var(--text-primary);text-decoration:none}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.logo span{color:var(--primary)}
+.nav-links{display:flex;align-items:center;gap:2rem;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .25s}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-cta{display:flex;align-items:center;gap:.75rem}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{width:22px;height:2px;background:var(--text-secondary);border-radius:2px}
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 0 80px}
+.hero-content{text-align:center;max-width:860px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);padding:8px 18px;border-radius:999px;font-size:.85rem;color:var(--primary);font-weight:600;margin-bottom:2rem;animation:fadeSlideDown .6s ease both}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--primary);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-size:clamp(2.8rem,7vw,5rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin-bottom:1.75rem;animation:fadeSlideUp .7s .1s ease both}
+.hero h1 .gradient{background:linear-gradient(135deg,var(--primary) 0%,#06d6a0 50%,#38bdf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:1.25rem;color:var(--text-secondary);max-width:640px;margin:0 auto 2.5rem;line-height:1.7;animation:fadeSlideUp .7s .2s ease both}
+.hero-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeSlideUp .7s .3s ease both}
+.hero-stats{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;margin-top:4rem;padding-top:3rem;border-top:1px solid var(--dark-border);animation:fadeSlideUp .7s .4s ease both}
+.hero-stat{text-align:center}
+.hero-stat-value{font-size:2rem;font-weight:800;color:var(--primary)}
+.hero-stat-label{font-size:.85rem;color:var(--text-muted);margin-top:2px}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeSlideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+.trust-bar{padding:2.5rem 0;border-top:1px solid var(--dark-border);border-bottom:1px solid var(--dark-border);background:var(--dark-surface)}
+.trust-items{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;align-items:center}
+.trust-item{display:flex;align-items:center;gap:10px;color:var(--text-secondary);font-size:.88rem;font-weight:600}
+.trust-item svg{color:var(--primary);flex-shrink:0}
+.versions{padding:6rem 0}
+.versions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem;margin-top:3rem}
+.version-card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:1.5rem;padding:2.5rem;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.version-card.free:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(16,185,129,.2);border-color:rgba(16,185,129,.3)}
+.version-card.paid:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(245,158,11,.2);border-color:rgba(245,158,11,.3)}
+.version-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.5rem}
+.version-badge.free{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+.version-badge.paid{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+.version-icon{width:60px;height:60px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin-bottom:1.5rem}
+.version-icon.free{background:rgba(16,185,129,.12)}
+.version-icon.paid{background:rgba(245,158,11,.12)}
+.version-card h3{font-size:1.6rem;font-weight:800;margin-bottom:.75rem}
+.version-card p.desc{color:var(--text-secondary);margin-bottom:2rem;line-height:1.7}
+.version-price{display:flex;align-items:baseline;gap:6px;margin-bottom:2rem}
+.version-price .amount{font-size:3rem;font-weight:900;line-height:1}
+.version-price .amount.free-text{color:var(--free-color)}
+.version-price .amount.paid-text{color:var(--paid-color)}
+.version-price .period{font-size:.9rem;color:var(--text-muted)}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:.75rem;margin-bottom:2.5rem}
+.feature-list li{display:flex;align-items:flex-start;gap:12px;font-size:.92rem;color:var(--text-secondary)}
+.feature-list li .check{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;margin-top:1px}
+.check.green{background:rgba(16,185,129,.15);color:var(--primary)}
+.check.amber{background:rgba(245,158,11,.15);color:#fbbf24}
+.check.gray{background:rgba(255,255,255,.05);color:var(--text-muted)}
+.feature-list li.dimmed{opacity:.5}
+.feature-list li strong{color:var(--text-primary)}
+.features{padding:6rem 0}
+.features-header{text-align:center;margin-bottom:4rem}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.feature-card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:1.25rem;padding:2rem;transition:all .3s ease}
+.feature-card:hover{transform:translateY(-4px);border-color:rgba(16,185,129,.2);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.feature-card-icon{width:52px;height:52px;border-radius:.875rem;background:rgba(16,185,129,.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+.feature-card h4{font-size:1.05rem;font-weight:700;margin-bottom:.5rem}
+.feature-card p{font-size:.88rem;color:var(--text-secondary);line-height:1.65}
+.how-it-works{padding:6rem 0}
+.how-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.steps{display:flex;flex-direction:column;gap:0;margin-top:1rem}
+.step{display:flex;gap:1.5rem;align-items:flex-start;padding-bottom:2rem;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;left:20px;top:44px;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(16,185,129,.3),transparent)}
+.step-num{width:42px;height:42px;border-radius:50%;flex-shrink:0;background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.3);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:var(--primary)}
+.step-num-amber{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:#fbbf24}
+.step-body h4{font-size:1.05rem;font-weight:700;margin-bottom:.4rem}
+.step-body p{font-size:.9rem;color:var(--text-secondary);line-height:1.65}
+.steps-label{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.25rem;display:block}
+.free-label{color:var(--primary)}
+.paid-label{color:#f59e0b}
+.pos-mockup{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:1.5rem;padding:2rem;box-shadow:0 30px 80px rgba(0,0,0,.5);position:relative}
+.pos-mockup-tag{position:absolute;top:-14px;right:20px;background:var(--primary);color:white;border-radius:999px;padding:5px 14px;font-size:.75rem;font-weight:800}
+.pos-dots{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem}
+.pos-dots span{width:12px;height:12px;border-radius:50%;display:inline-block}
+.pos-sale-area{background:var(--dark-surface);border-radius:.875rem;padding:1.25rem;margin-bottom:1rem}
+.pos-sale-label{font-size:.7rem;color:var(--text-muted);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;display:block}
+.pos-item{display:flex;justify-content:space-between;font-size:.85rem;color:var(--text-secondary);margin-bottom:.5rem}
+.pos-total{border-top:1px solid var(--dark-border);padding-top:.5rem;margin-top:.25rem;display:flex;justify-content:space-between;font-weight:700}
+.pos-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+.pos-btn{border-radius:.5rem;padding:.6rem;font-size:.8rem;font-weight:700;text-align:center}
+.pos-btn-green{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:var(--primary)}
+.pos-btn-blue{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);color:#60a5fa}
+.pos-btn-amber{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#fbbf24}
+.pos-btn-gray{background:rgba(255,255,255,.05);border:1px solid var(--dark-border);color:var(--text-secondary)}
+.pos-last-sale{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:.5rem;padding:.75rem;text-align:center;font-size:.8rem;color:var(--primary);font-weight:700}
+.pricing{padding:6rem 0}
+.pricing-header{text-align:center;margin-bottom:4rem}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;align-items:start}
+.pricing-card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:1.5rem;padding:2.5rem;position:relative}
+.pricing-card.highlighted{border-color:rgba(16,185,129,.4);box-shadow:0 0 0 1px rgba(16,185,129,.15),0 20px 50px rgba(16,185,129,.12)}
+.pricing-card.highlighted-paid{border-color:rgba(245,158,11,.4);box-shadow:0 0 0 1px rgba(245,158,11,.15),0 20px 50px rgba(245,158,11,.12)}
+.pricing-chip{position:absolute;top:-13px;left:50%;transform:translateX(-50%);padding:4px 16px;border-radius:999px;font-size:.75rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.pricing-chip-green{background:var(--primary);color:white}
+.pricing-chip-amber{background:#f59e0b;color:white}
+.plan-name{font-size:1.1rem;font-weight:700;margin-bottom:.5rem;color:var(--text-secondary)}
+.plan-price{font-size:3rem;font-weight:900;margin-bottom:.25rem}
+.plan-price-green{color:var(--free-color)}
+.plan-price-amber{color:var(--paid-color)}
+.plan-note{font-size:.85rem;color:var(--text-muted);margin-bottom:2rem}
+.pricing-divider{height:1px;background:var(--dark-border);margin:1.75rem 0}
+.pricing-features{list-style:none;display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem}
+.pricing-features li{display:flex;align-items:flex-start;gap:10px;font-size:.88rem}
+.pricing-features li svg{flex-shrink:0;margin-top:2px}
+.pricing-features li.dim{opacity:.45}
+.pricing-note{text-align:center;margin-top:2rem;font-size:.85rem;color:var(--text-muted)}
+.testimonials{padding:6rem 0}
+.testimonials-header{text-align:center;margin-bottom:4rem}
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.testimonial-card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:1.25rem;padding:2rem;position:relative}
+.testimonial-card::before{content:'\201C';position:absolute;top:1.25rem;right:1.75rem;font-size:4rem;color:rgba(16,185,129,.15);line-height:1;font-family:Georgia,serif}
+.stars{display:flex;gap:3px;margin-bottom:1rem;color:#fbbf24;font-size:.9rem}
+.testimonial-card p.quote{font-size:.92rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1.5rem}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.author-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:white}
+.author-name{font-weight:700;font-size:.9rem}
+.author-title{font-size:.78rem;color:var(--text-muted)}
+.faq{padding:6rem 0}
+.faq-header{text-align:center;margin-bottom:3rem}
+.faq-list{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:.75rem}
+.faq-item{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:.875rem;overflow:hidden}
+.faq-question{padding:1.25rem 1.5rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.95rem;user-select:none;transition:background .2s}
+.faq-question:hover{background:rgba(255,255,255,.03)}
+.faq-icon{font-size:1.2rem;color:var(--primary);transition:transform .3s;flex-shrink:0;margin-left:1rem}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-answer{display:none;padding:0 1.5rem 1.25rem;font-size:.9rem;color:var(--text-secondary);line-height:1.75}
+.faq-item.open .faq-answer{display:block}
+.contact{padding:6rem 0}
+.contact-card{background:linear-gradient(135deg,rgba(16,185,129,.08) 0%,rgba(6,214,160,.05) 50%,rgba(56,189,248,.06) 100%);border:1px solid rgba(16,185,129,.2);border-radius:2rem;padding:4rem;text-align:center;position:relative;overflow:hidden}
+.contact-card h2{font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;margin-bottom:1rem}
+.contact-desc{font-size:1.1rem;color:var(--text-secondary);max-width:540px;margin:0 auto 2.5rem}
+.contact-methods{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-bottom:2.5rem}
+.contact-method{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:.75rem;padding:1rem 1.5rem;text-decoration:none;color:var(--text-primary);font-size:.9rem;font-weight:600;transition:all .3s}
+.contact-method:hover{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);transform:translateY(-2px)}
+.contact-method .icon{font-size:1.2rem}
+.contact-note{font-size:.82rem;color:var(--text-muted);margin-top:1rem}
+footer{background:var(--dark-surface);border-top:1px solid var(--dark-border);padding:4rem 0 2rem;position:relative;z-index:1}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+.footer-brand p{font-size:.88rem;color:var(--text-muted);line-height:1.7;max-width:300px;margin-top:.75rem}
+.footer-col h5{font-size:.85rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.25rem}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.footer-col ul a{color:var(--text-secondary);text-decoration:none;font-size:.88rem;transition:color .2s}
+.footer-col ul a:hover{color:var(--primary)}
+.footer-bottom{border-top:1px solid var(--dark-border);padding-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-bottom p{font-size:.82rem;color:var(--text-muted)}
+.footer-badge{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-muted)}
+.footer-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--primary);animation:pulse-dot 2s infinite}
+.reveal{opacity:0;transform:translateY(30px);transition:all .65s cubic-bezier(.22,1,.36,1)}
+.reveal.in-view{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,15,26,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.mobile-nav.open{display:flex}
+.mobile-nav a{color:var(--text-primary);text-decoration:none;font-size:1.5rem;font-weight:700}
+.mobile-nav-close{position:absolute;top:1.5rem;right:1.5rem;font-size:2rem;cursor:pointer;color:var(--text-secondary)}
+@media(max-width:768px){.nav-links,.nav-cta{display:none}.hamburger{display:flex}.footer-grid{grid-template-columns:1fr;gap:2rem}.contact-card{padding:2.5rem 1.5rem}.hero h1{font-size:2.5rem}.trust-items{gap:1.5rem}.how-grid{grid-template-columns:1fr!important;gap:2rem!important}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="mobile-nav" id="mobileNav">
+  <span class="mobile-nav-close" onclick="closeMobileNav()">&#10005;</span>
+  <a href="#features" onclick="closeMobileNav()">Features</a>
+  <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
+  <a href="#how-it-works" onclick="closeMobileNav()">How It Works</a>
+  <a href="#faq" onclick="closeMobileNav()">FAQ</a>
+  <a href="#contact" onclick="closeMobileNav()" class="btn btn-contact">Get Desktop Version</a>
+</div>
+
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo"><div class="logo-icon">&#128138;</div>Pharma<span>SOFT</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-cta">
+      <button onclick="openModal('loginModal')" class="btn btn-ghost" style="padding:.65rem 1.25rem;font-size:.88rem;cursor:pointer;">Log In</button>
+      <a href="#contact" class="btn btn-contact" style="padding:.65rem 1.25rem;font-size:.88rem;">Get Desktop</a>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot"></span>Trusted by pharmacies across Tunisia</div>
+      <h1>Pharmacy Software<br><span class="gradient">Built for the Modern Age</span></h1>
+      <p class="hero-desc">PharmaSOFT gives your pharmacy a complete point-of-sale, inventory, and reporting platform. Start free on the web &mdash; or get the full-featured desktop edition for offline power.</p>
+      <div class="hero-buttons">
+        <a href="/dashboard-user.html" class="btn btn-primary" id="hero-web-cta">Start Free &mdash; Web Version</a>
+        <a href="#contact" class="btn btn-ghost" id="hero-desktop-cta">Get Desktop Version</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-value">100%</div><div class="hero-stat-label">Web version free</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">&#8734;</div><div class="hero-stat-label">Products &amp; sales</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">CNAM</div><div class="hero-stat-label">Ready</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">24/7</div><div class="hero-stat-label">Support</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="trust-bar">
+  <div class="container"><div class="trust-items">
+    <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure &amp; Encrypted</div>
+    <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Instant Setup</div>
+    <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Made for Tunisian Pharmacies</div>
+    <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Real-time Reports</div>
+    <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>Offline-capable Desktop</div>
+  </div></div>
+</div>
+
+<section class="versions" id="versions">
+  <div class="container">
+    <div class="section-label">Two Versions</div>
+    <h2 class="section-title">Choose How You Use PharmaSOFT</h2>
+    <p class="section-subtitle">Same powerful software &mdash; pick the version that fits your pharmacy.</p>
+    <div class="versions-grid">
+      <div class="version-card free reveal">
+        <span class="version-badge free">100% Free</span>
+        <div class="version-icon free">&#127760;</div>
+        <h3>Web Version</h3>
+        <p class="desc">Access PharmaSOFT from any browser, anywhere. No installation needed. Data is backed up automatically in the cloud.</p>
+        <div class="version-price"><span class="amount free-text">Free</span><span class="period">&mdash; forever</span></div>
+        <ul class="feature-list">
+          <li><span class="check green">&#10003;</span><div><strong>Full POS System</strong> &mdash; sales, returns, exchanges</div></li>
+          <li><span class="check green">&#10003;</span><div><strong>Unlimited Products</strong> &amp; categories</div></li>
+          <li><span class="check green">&#10003;</span><div><strong>Inventory Management</strong> &mdash; stock alerts &amp; expiry</div></li>
+          <li><span class="check green">&#10003;</span><div><strong>CNAM Support</strong> &mdash; insurance billing</div></li>
+          <li><span class="check green">&#10003;</span><div><strong>Sales Reports &amp; Analytics</strong></div></li>
+          <li><span class="check green">&#10003;</span><div>Multi-user access</div></li>
+          <li class="dimmed"><span class="check gray">&#10005;</span><div>No offline mode</div></li>
+          <li class="dimmed"><span class="check gray">&#10005;</span><div>No receipt printer / scanner integration</div></li>
+        </ul>
+        <a href="/dashboard-user.html" class="btn btn-primary" style="width:100%;justify-content:center;" id="web-version-cta">Start Free Now &rarr;</a>
+      </div>
+      <div class="version-card paid reveal reveal-delay-2">
+        <span class="version-badge paid">Premium</span>
+        <div class="version-icon paid">&#128187;</div>
+        <h3>Desktop Version</h3>
+        <p class="desc">The complete PharmaSOFT experience installed on your Windows PC. Works offline, integrates with hardware, and handles high-volume pharmacies.</p>
+        <div class="version-price"><span class="amount paid-text">Paid</span><span class="period">&mdash; contact for pricing</span></div>
+        <ul class="feature-list">
+          <li><span class="check amber">&#10003;</span><div><strong>Everything in Web</strong> &mdash; all features included</div></li>
+          <li><span class="check amber">&#10003;</span><div><strong>Offline Mode</strong> &mdash; works without internet</div></li>
+          <li><span class="check amber">&#10003;</span><div><strong>Receipt Printer</strong> support (thermal)</div></li>
+          <li><span class="check amber">&#10003;</span><div><strong>Barcode Scanner</strong> integration</div></li>
+          <li><span class="check amber">&#10003;</span><div><strong>Local Data Storage</strong> &mdash; full control</div></li>
+          <li><span class="check amber">&#10003;</span><div><strong>Multi-cashier</strong> &amp; shift management</div></li>
+          <li><span class="check amber">&#10003;</span><div>Priority dedicated support</div></li>
+          <li><span class="check amber">&#10003;</span><div>Professional installation included</div></li>
+        </ul>
+        <a href="#contact" class="btn btn-contact" style="width:100%;justify-content:center;" id="desktop-version-cta">Contact to Purchase &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="container">
+    <div class="features-header reveal">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything Your Pharmacy Needs</h2>
+      <p class="section-subtitle">PharmaSOFT covers your entire operation &mdash; from the counter to the back-office.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal"><div class="feature-card-icon">&#127978;</div><h4>Point of Sale</h4><p>Fast, intuitive POS interface. Ring up sales, process returns, and manage multiple payment methods.</p></div>
+      <div class="feature-card reveal reveal-delay-1"><div class="feature-card-icon">&#128230;</div><h4>Inventory Control</h4><p>Track stock levels in real time. Get automatic low-stock alerts and expiry date warnings.</p></div>
+      <div class="feature-card reveal reveal-delay-2"><div class="feature-card-icon">&#129658;</div><h4>CNAM Insurance</h4><p>Built-in support for Tunisian CNAM insurance billing. Process insured prescriptions accurately.</p></div>
+      <div class="feature-card reveal"><div class="feature-card-icon">&#128202;</div><h4>Reports &amp; Analytics</h4><p>Daily, weekly, and monthly sales summaries. Track revenue, top products, and cashier performance.</p></div>
+      <div class="feature-card reveal reveal-delay-1"><div class="feature-card-icon">&#128100;</div><h4>Customer Management</h4><p>Maintain a customer database, track purchase history, and offer loyalty discounts.</p></div>
+      <div class="feature-card reveal reveal-delay-2"><div class="feature-card-icon">&#128274;</div><h4>Multi-user &amp; Roles</h4><p>Create cashier, manager, and admin accounts with different permission levels.</p></div>
+      <div class="feature-card reveal"><div class="feature-card-icon">&#128424;</div><h4>Receipt Printing</h4><p>Print formatted thermal receipts instantly. Compatible with 58mm and 80mm printers. (Desktop only)</p></div>
+      <div class="feature-card reveal reveal-delay-1"><div class="feature-card-icon">&#128241;</div><h4>Barcode Scanning</h4><p>Scan products instantly at checkout using any USB or Bluetooth barcode scanner. (Desktop only)</p></div>
+      <div class="feature-card reveal reveal-delay-2"><div class="feature-card-icon">&#9729;</div><h4>Cloud Backup</h4><p>Web version data is stored and backed up securely. Never lose your sales history or inventory records.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works" id="how-it-works">
+  <div class="container">
+    <div class="how-grid">
+      <div class="reveal">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">Up and Running in Minutes</h2>
+        <p style="color:var(--text-secondary);margin-bottom:2rem;">Whether you choose web or desktop, getting started is simple.</p>
+        <span class="steps-label free-label">&#127760; Web Version (Free)</span>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Create your free account</h4><p>Sign up with your pharmacy name, email, and phone. Takes under a minute.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Add your products</h4><p>Import your catalog or add medicines manually with name, price, stock, and barcode.</p></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Start selling immediately</h4><p>Use the POS from any browser on any device &mdash; desktop, tablet, or phone.</p></div></div>
+        </div>
+        <span class="steps-label paid-label" style="margin-top:2rem;">&#128187; Desktop Version (Paid)</span>
+        <div class="steps">
+          <div class="step"><div class="step-num step-num-amber">1</div><div class="step-body"><h4>Contact us to purchase</h4><p>Reach out via WhatsApp or email. We explain pricing and everything included.</p></div></div>
+          <div class="step"><div class="step-num step-num-amber">2</div><div class="step-body"><h4>We install &amp; configure for you</h4><p>Our team installs PharmaSOFT on your Windows PC and sets up your pharmacy profile.</p></div></div>
+          <div class="step"><div class="step-num step-num-amber">3</div><div class="step-body"><h4>Ready to operate</h4><p>Connect your printer and scanner &mdash; you're good to go, even offline.</p></div></div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="pos-mockup">
+          <div class="pos-mockup-tag">Live Preview</div>
+          <div class="pos-dots">
+            <span style="background:#ff5f57;"></span>
+            <span style="background:#febc2e;"></span>
+            <span style="background:#28c840;"></span>
+            <span style="margin-left:.5rem;font-size:.78rem;color:var(--text-muted);">PharmaSOFT POS</span>
+          </div>
+          <div class="pos-sale-area">
+            <span class="pos-sale-label">Current Sale</span>
+            <div class="pos-item"><span>Doliprane 1000mg &times;2</span><span>4.800 TND</span></div>
+            <div class="pos-item"><span>Amoxicillin 500mg &times;1</span><span>3.200 TND</span></div>
+            <div class="pos-item"><span>Vitamin C 1000mg &times;3</span><span>6.000 TND</span></div>
+            <div class="pos-total"><span>Total</span><span style="color:var(--primary);">14.000 TND</span></div>
+          </div>
+          <div class="pos-actions">
+            <div class="pos-btn pos-btn-green">&#128181; Cash</div>
+            <div class="pos-btn pos-btn-blue">&#128179; Card</div>
+            <div class="pos-btn pos-btn-amber">&#129658; CNAM</div>
+            <div class="pos-btn pos-btn-gray">&#8634; Return</div>
+          </div>
+          <div class="pos-last-sale">&#10003; Last sale: +22.500 TND</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="pricing-header reveal">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Simple, Transparent Plans</h2>
+      <p class="section-subtitle" style="margin:0 auto;">Web version is completely free &mdash; always. Desktop pricing is based on your pharmacy needs.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card highlighted reveal" id="plan-free">
+        <div class="pricing-chip pricing-chip-green">Most Popular</div>
+        <p class="plan-name">Web Version</p>
+        <div class="plan-price plan-price-green">Free</div>
+        <p class="plan-note">No credit card. No trial. Forever free.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Full POS System</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited Products &amp; Sales</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Inventory &amp; Expiry Alerts</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>CNAM Insurance Billing</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sales Reports &amp; Analytics</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Multi-user Support</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Cloud Backup</li>
+          <li class="dim"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d6480" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Offline Mode</li>
+          <li class="dim"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d6480" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Hardware Integration</li>
+        </ul>
+        <a href="/dashboard-user.html" class="btn btn-primary" style="width:100%;justify-content:center;" id="pricing-free-cta">Create Free Account &rarr;</a>
+      </div>
+      <div class="pricing-card highlighted-paid reveal reveal-delay-2" id="plan-desktop">
+        <div class="pricing-chip pricing-chip-amber">Full Power</div>
+        <p class="plan-name">Desktop Version</p>
+        <div class="plan-price plan-price-amber">Paid</div>
+        <p class="plan-note">Contact us &mdash; pricing depends on your setup.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><strong>All Web Features Included</strong></li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><strong>Offline Mode &mdash; works without internet</strong></li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Receipt Printer Integration</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Barcode Scanner Support</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Local Data Storage</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Multi-cashier &amp; Shifts</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Professional Installation</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority Dedicated Support</li>
+        </ul>
+        <a href="#contact" class="btn btn-contact" style="width:100%;justify-content:center;" id="pricing-desktop-cta">Contact to Purchase &rarr;</a>
+      </div>
+    </div>
+    <p class="pricing-note">&#128172; All purchases are made directly through the seller &mdash; no online payment required.</p>
+  </div>
+</section>
+
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="testimonials-header reveal">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">Loved by Pharmacists</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="quote">"PharmaSOFT saved us hours every day. CNAM billing used to take forever &mdash; now it's instant. The free web version is unbelievably good."</p><div class="testimonial-author"><div class="author-avatar">MA</div><div><div class="author-name">Mohamed A.</div><div class="author-title">Pharmacist, Tunis</div></div></div></div>
+      <div class="testimonial-card reveal reveal-delay-1"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="quote">"We switched from a paper system to PharmaSOFT Web in one afternoon. Fast setup, clean interface, easy for all our staff."</p><div class="testimonial-author"><div class="author-avatar">LB</div><div><div class="author-name">Leila B.</div><div class="author-title">Pharmacy Owner, Sfax</div></div></div></div>
+      <div class="testimonial-card reveal reveal-delay-2"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="quote">"The desktop version is worth every dinar. Offline mode means we never stop selling. The team installed everything perfectly."</p><div class="testimonial-author"><div class="author-avatar">KM</div><div><div class="author-name">Karim M.</div><div class="author-title">Head Pharmacist, Sousse</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-header reveal"><div class="section-label">FAQ</div><h2 class="section-title">Common Questions</h2></div>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">Is the web version really completely free?<span class="faq-icon">+</span></div><div class="faq-answer">Yes &mdash; 100% free, forever. No credit card, no hidden fees, no trial. Full POS, inventory, CNAM billing, and reports at no cost.</div></div>
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">What is the difference between web and desktop?<span class="faq-icon">+</span></div><div class="faq-answer">The web version runs in your browser and requires internet. It is free. The desktop version is installed on your Windows PC, works offline, and integrates with receipt printers and barcode scanners.</div></div>
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">How do I buy the desktop version?<span class="faq-icon">+</span></div><div class="faq-answer">Contact us via WhatsApp or email. We discuss your needs, explain pricing, and schedule a professional installation. No online payment &mdash; everything is handled directly with the seller.</div></div>
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">Does PharmaSOFT support CNAM insurance?<span class="faq-icon">+</span></div><div class="faq-answer">Yes, both versions fully support CNAM billing. Process insured prescriptions, track reimbursements, and generate CNAM reports.</div></div>
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">Can multiple staff use it at the same time?<span class="faq-icon">+</span></div><div class="faq-answer">Yes. Create multiple user accounts with different roles &mdash; cashier, manager, or admin. Each person logs in separately and all activity is tracked.</div></div>
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">Is my data safe?<span class="faq-icon">+</span></div><div class="faq-answer">Web version data is encrypted and backed up to secure cloud servers. Desktop data is stored locally, giving you full control. You can export data anytime.</div></div>
+      <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">What OS does the desktop version support?<span class="faq-icon">+</span></div><div class="faq-answer">Currently Windows 10 and Windows 11. Our team handles the full installation and configuration on your machine.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-card reveal">
+      <div class="section-label" style="margin:0 auto 1.25rem;">Get in Touch</div>
+      <h2>Ready to Get the Desktop Version?</h2>
+      <p class="contact-desc">Contact us directly &mdash; we will guide you through pricing, installation, and support. No online payment, no hassle.</p>
+      <div class="contact-methods">
+        <a href="https://wa.me/21600000000" class="contact-method" id="contact-whatsapp" target="_blank" rel="noopener">
+          <span class="icon">&#128242;</span>
+          <div><div style="font-size:.75rem;color:var(--text-muted);margin-bottom:1px;">WhatsApp</div><div>+216 00 000 000</div></div>
+        </a>
+        <a href="mailto:contact@pharmasoft.tn" class="contact-method" id="contact-email">
+          <span class="icon">&#9993;</span>
+          <div><div style="font-size:.75rem;color:var(--text-muted);margin-bottom:1px;">Email</div><div>contact@pharmasoft.tn</div></div>
+        </a>
+      </div>
+      <p class="contact-note">We typically respond within a few hours (Mon&ndash;Sat, 9am&ndash;6pm).</p>
+      <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.07);">
+        <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:1.25rem;">Or start using the free web version right now &mdash; no contact needed:</p>
+        <a href="/dashboard-user.html" class="btn btn-primary" id="contact-free-cta">Create Free Account &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo"><div class="logo-icon" style="width:32px;height:32px;font-size:1rem;border-radius:8px;">&#128138;</div>Pharma<span>SOFT</span></a>
+        <p>Professional pharmacy management software for Tunisian pharmacies. Web version free. Desktop version available on request.</p>
+      </div>
+      <div class="footer-col"><h5>Product</h5><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#how-it-works">How It Works</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div class="footer-col"><h5>Get Access</h5><ul><li><a href="/dashboard-user.html">Web Version &mdash; Free</a></li><li><a href="#contact">Desktop Version &mdash; Contact Us</a></li><li><a href="mailto:contact@pharmasoft.tn">Email Us</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 PharmaSOFT. All rights reserved.</p>
+      <div class="footer-badge"><span class="dot"></span>All systems operational</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+  function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow = ''; }
+  function toggleFAQ(q) {
+    const item = q.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+  const ro = new IntersectionObserver((es) => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); ro.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- LOGIN MODAL -->
+<div id="loginModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#111e30;border:1px solid rgba(255,255,255,0.1);border-radius:1.25rem;padding:2.5rem;width:100%;max-width:440px;margin:1rem;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+    <button onclick="closeModal('loginModal')" style="position:absolute;top:1rem;right:1.25rem;background:none;border:none;color:#8ba3c0;font-size:1.5rem;cursor:pointer;line-height:1;">&#10005;</button>
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;">&#128138;</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:#f0f6ff;margin-bottom:0.25rem;">Welcome Back</h2>
+      <p style="font-size:0.88rem;color:#8ba3c0;">Sign in to your PharmaSOFT account</p>
+    </div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#8ba3c0;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Email or Username</label>
+        <input id="loginEmail" type="text" required placeholder="your@pharmacy.com or username"
+          style="width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;color:#f0f6ff;font-size:0.95rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div style="margin-bottom:1.75rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#8ba3c0;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Password</label>
+        <input id="loginPassword" type="password" required placeholder="••••••••"
+          style="width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;color:#f0f6ff;font-size:0.95rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div id="loginError" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:#fca5a5;"></div>
+      <button type="submit" id="loginBtn"
+        style="width:100%;padding:0.95rem;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:0.65rem;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;">
+        Sign In
+      </button>
+    </form>
+    <p style="text-align:center;margin-top:1.5rem;font-size:0.88rem;color:#8ba3c0;">
+      Don't have an account?
+      <button onclick="switchModal('loginModal','signupModal')" style="background:none;border:none;color:#10b981;font-weight:700;cursor:pointer;font-size:0.88rem;">Create one free &rarr;</button>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SIGNUP MODAL -->
+<div id="signupModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#111e30;border:1px solid rgba(255,255,255,0.1);border-radius:1.25rem;padding:2.5rem;width:100%;max-width:480px;margin:1rem;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;">
+    <button onclick="closeModal('signupModal')" style="position:absolute;top:1rem;right:1.25rem;background:none;border:none;color:#8ba3c0;font-size:1.5rem;cursor:pointer;line-height:1;">&#10005;</button>
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;">&#127760;</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:#f0f6ff;margin-bottom:0.25rem;">Create Free Account</h2>
+      <p style="font-size:0.88rem;color:#8ba3c0;">Start using PharmaSOFT Web for free — no credit card</p>
+    </div>
+    <form id="signupForm" onsubmit="handleSignup(event)">
+      <div style="margin-bottom:1.1rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#8ba3c0;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Pharmacy Name</label>
+        <input id="signupPharmacy" type="text" required placeholder="e.g. Pharmacie Al Amal"
+          style="width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;color:#f0f6ff;font-size:0.95rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div style="margin-bottom:1.1rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#8ba3c0;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Email</label>
+        <input id="signupEmail" type="email" required placeholder="your@pharmacy.com"
+          style="width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;color:#f0f6ff;font-size:0.95rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div style="margin-bottom:1.1rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#8ba3c0;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Phone</label>
+        <input id="signupPhone" type="tel" placeholder="+216 XX XXX XXX"
+          style="width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;color:#f0f6ff;font-size:0.95rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div style="margin-bottom:1.75rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#8ba3c0;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">Password</label>
+        <input id="signupPassword" type="password" required placeholder="Min. 8 characters"
+          style="width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;color:#f0f6ff;font-size:0.95rem;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div id="signupError" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:#fca5a5;"></div>
+      <button type="submit" id="signupBtn"
+        style="width:100%;padding:0.95rem;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:0.65rem;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;">
+        Create Free Account
+      </button>
+    </form>
+    <p style="text-align:center;margin-top:1.5rem;font-size:0.88rem;color:#8ba3c0;">
+      Already have an account?
+      <button onclick="switchModal('signupModal','loginModal')" style="background:none;border:none;color:#10b981;font-weight:700;cursor:pointer;font-size:0.88rem;">Sign in &rarr;</button>
+    </p>
+  </div>
+</div>
+
+<script>
+  const API_URL = '/api';
+
+  // ── Auto-redirect if already logged in ─────────────────────
+  (function checkAuth() {
+    const token = localStorage.getItem('pharmasoft_token');
+    const path = window.location.pathname;
+    // Only auto-redirect from root/index
+    if (token && (path === '/' || path === '/index.html' || path === '')) {
+      fetch(API_URL + '/auth/verify', { headers: { Authorization: 'Bearer ' + token } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) window.location.href = '/dashboard-user.html';
+        })
+        .catch(() => {});
+    }
+  })();
+
+  // ── Modal helpers ────────────────────────────────────────────
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
+  }
+  function switchModal(fromId, toId) {
+    closeModal(fromId);
+    openModal(toId);
+  }
+
+  // Close modal on backdrop click
+  ['loginModal','signupModal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', e => { if (e.target === el) closeModal(id); });
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal('loginModal'); closeModal('signupModal'); }
+  });
+
+  // ── Patch all "Start Free" / "Log In" / "Create Account" CTAs ──
+  document.addEventListener('DOMContentLoaded', () => {
+    // Log In buttons → open login modal
+    document.querySelectorAll('a[href="/dashboard-user.html"]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const token = localStorage.getItem('pharmasoft_token');
+        if (!token) {
+          e.preventDefault();
+          openModal('signupModal');
+        }
+      });
+    });
+  });
+
+  // ── LOGIN ────────────────────────────────────────────────────
+  async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    const login = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch(API_URL + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login, username: login, email: login, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const token = data.token || data.data?.token;
+        const user = data.user || data.data?.user;
+        if (token) localStorage.setItem('pharmasoft_token', token);
+        if (user) localStorage.setItem('pharmasoft_user', JSON.stringify(user));
+        localStorage.removeItem('admin_token');
+        window.location.href = '/dashboard-user.html';
+      } else {
+        errEl.textContent = data.error?.message || data.error || 'Invalid email or password.';
+        errEl.style.display = 'block';
+      }
+    } catch (err) {
+      errEl.textContent = 'Network error. Please make sure the server is running.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  // ── SIGNUP ───────────────────────────────────────────────────
+  async function handleSignup(e) {
+    e.preventDefault();
+    const btn = document.getElementById('signupBtn');
+    const errEl = document.getElementById('signupError');
+    const pharmacyName = document.getElementById('signupPharmacy').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const phone = document.getElementById('signupPhone').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch(API_URL + '/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pharmacyName, email, password, phone,
+          username: email.split('@')[0],
+          name: 'Admin',
+          address: 'Tunisia',
+          taxId: 'Pending'
+        })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const token = data.token || data.data?.token;
+        const user = data.user || data.data?.user;
+        if (token) localStorage.setItem('pharmasoft_token', token);
+        if (user) localStorage.setItem('pharmasoft_user', JSON.stringify(user));
+        localStorage.removeItem('admin_token');
+        window.location.href = '/dashboard-user.html';
+      } else {
+        errEl.innerHTML = data.error?.message || data.error || 'Registration failed. Please try again.';
+        errEl.style.display = 'block';
+      }
+    } catch (err) {
+      errEl.textContent = 'Network error. Please make sure the server is running.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create Free Account';
+    }
+  }
+</script>
+
+</body>
+</html>

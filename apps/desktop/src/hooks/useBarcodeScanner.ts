@@ -17,7 +17,7 @@ export function useBarcodeScanner({
 }: BarcodeScannerHookOptions) {
     const buffer = useRef<string>('');
     const lastInputTime = useRef<number>(0);
-    const timeoutRef = useRef<number>();
+    const timeoutRef = useRef<any>(null);
 
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {

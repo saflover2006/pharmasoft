@@ -11,6 +11,7 @@ interface QuickActionsProps {
     onResumeTransaction: () => void;
     heldTransactionCount: number;
     disabled: boolean;
+    t: (key: string) => string;
 }
 
 /**
@@ -25,6 +26,7 @@ export default function QuickActions({
     onResumeTransaction,
     heldTransactionCount,
     disabled,
+    t,
 }: QuickActionsProps) {
     return (
         <div className="flex flex-col h-full bg-dark-bg">
@@ -45,7 +47,7 @@ export default function QuickActions({
                             d="M13 10V3L4 14h7v7l9-11h-7z"
                         />
                     </svg>
-                    Quick Actions
+                    {t('quickActions.title')}
                 </h2>
             </div>
 
@@ -55,7 +57,7 @@ export default function QuickActions({
                     {/* Summary Card */}
                     <div className="card p-6 bg-gradient-to-br from-dark-surface to-dark-elevated" role="region" aria-label="Order summary">
                         <div className="text-center">
-                            <div className="text-sm text-gray-400 mb-2">Total Amount</div>
+                            <div className="text-sm text-gray-400 mb-2">{t('quickActions.total')}</div>
                             <div className="text-4xl font-bold text-primary mb-4 font-mono" aria-live="polite">
                                 {formatPrice(summary.total)}
                             </div>
@@ -64,17 +66,17 @@ export default function QuickActions({
                                     <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
-                                    {summary.itemCount} items
+                                    {summary.itemCount} {summary.itemCount === 1 ? t('quickActions.item') : t('quickActions.items')}
                                 </span>
                                 <span aria-hidden="true">•</span>
-                                <span>VAT: {formatPrice(summary.vat)}</span>
+                                <span>{t('cart.vat')}: {formatPrice(summary.vat)}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Payment Methods */}
                     <section className="space-y-3" aria-label="Payment methods">
-                        <h3 className="text-sm font-medium text-gray-400 mb-3">Payment Methods</h3>
+                        <h3 className="text-sm font-medium text-gray-400 mb-3">{t('quickActions.paymentMethods')}</h3>
 
                         {/* Cash Payment Button */}
                         <button
@@ -99,12 +101,12 @@ export default function QuickActions({
                                     />
                                 </svg>
                                 <div className="text-left">
-                                    <div className="text-lg font-bold">Cash Payment</div>
-                                    <div className="text-sm opacity-80">Process cash transaction</div>
+                                    <div className="text-lg font-bold">{t('quickActions.cashPayment')}</div>
+                                    <div className="text-sm opacity-80">{t('quickActions.processCash')}</div>
                                 </div>
                             </div>
-                            <kbd className="px-3 py-1 bg-white/20 rounded text-xs font-mono" aria-label="Keyboard shortcut F1">
-                                {KEYBOARD_SHORTCUTS.CASH_PAYMENT}
+                            <kbd className="px-3 py-1 bg-white/20 rounded text-xs font-mono" aria-label="Keyboard shortcut 1">
+                                1
                             </kbd>
                         </button>
 
@@ -131,19 +133,19 @@ export default function QuickActions({
                                     />
                                 </svg>
                                 <div className="text-left">
-                                    <div className="text-lg font-bold">Card Payment</div>
-                                    <div className="text-sm opacity-80">Process card transaction</div>
+                                    <div className="text-lg font-bold">{t('quickActions.cardPayment')}</div>
+                                    <div className="text-sm opacity-80">{t('quickActions.processCard')}</div>
                                 </div>
                             </div>
-                            <kbd className="px-3 py-1 bg-white/20 rounded text-xs font-mono" aria-label="Keyboard shortcut F2">
-                                {KEYBOARD_SHORTCUTS.CARD_PAYMENT}
+                            <kbd className="px-3 py-1 bg-white/20 rounded text-xs font-mono" aria-label="Keyboard shortcut 2">
+                                2
                             </kbd>
                         </button>
                     </section>
 
                     {/* Additional Actions */}
                     <section className="space-y-3 pt-4 border-t border-dark-border" aria-label="Other actions">
-                        <h3 className="text-sm font-medium text-gray-400 mb-3">Other Actions</h3>
+                        <h3 className="text-sm font-medium text-gray-400 mb-3">{t('quickActions.otherActions')}</h3>
 
                         <div className="grid grid-cols-2 gap-3">
                             <button
@@ -155,7 +157,7 @@ export default function QuickActions({
                                 <svg className="h-6 w-6 mb-1 text-warning group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="text-sm font-bold">Hold</span>
+                                <span className="text-sm font-bold">{t('quickActions.holdTransaction').split(' ')[0]}</span>
                             </button>
                             <button
                                 onClick={onResumeTransaction}
@@ -167,7 +169,7 @@ export default function QuickActions({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="text-sm font-bold">Resume</span>
+                                <span className="text-sm font-bold">{t('quickActions.resumeTransaction').split(' ')[0]}</span>
                                 {heldTransactionCount > 0 && (
                                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-dark-bg animate-pulse">
                                         {heldTransactionCount}
@@ -199,12 +201,12 @@ export default function QuickActions({
                                     />
                                 </svg>
                                 <div className="text-left">
-                                    <div className="font-bold">Clear Cart</div>
-                                    <div className="text-xs opacity-80">Remove all items</div>
+                                    <div className="font-bold">{t('quickActions.clearCart')}</div>
+                                    <div className="text-xs opacity-80">{t('quickActions.removeAllItems')}</div>
                                 </div>
                             </div>
-                            <kbd className="px-3 py-1 bg-white/20 rounded text-xs font-mono" aria-label="Keyboard shortcut F3">
-                                {KEYBOARD_SHORTCUTS.CLEAR_CART}
+                            <kbd className="px-3 py-1 bg-white/20 rounded text-xs font-mono" aria-label="Keyboard shortcut 3">
+                                3
                             </kbd>
                         </button>
                     </section>
@@ -212,34 +214,28 @@ export default function QuickActions({
 
                 {/* Keyboard Shortcuts Reference */}
                 <div className="mt-6 card p-4 bg-dark-surface/50">
-                    <h3 className="text-xs font-medium text-gray-400 mb-3">Keyboard Shortcuts</h3>
+                    <h3 className="text-xs font-medium text-gray-400 mb-3">{t('quickActions.keyboardShortcuts')}</h3>
                     <dl className="space-y-2 text-xs text-gray-500">
                         <div className="flex justify-between items-center">
-                            <dt>Cash Payment</dt>
+                            <dt>{t('quickActions.cashPayment')}</dt>
                             <dd>
-                                <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">
-                                    {KEYBOARD_SHORTCUTS.CASH_PAYMENT}
-                                </kbd>
+                                <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">1</kbd>
                             </dd>
                         </div>
                         <div className="flex justify-between items-center">
-                            <dt>Card Payment</dt>
+                            <dt>{t('quickActions.cardPayment')}</dt>
                             <dd>
-                                <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">
-                                    {KEYBOARD_SHORTCUTS.CARD_PAYMENT}
-                                </kbd>
+                                <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">2</kbd>
                             </dd>
                         </div>
                         <div className="flex justify-between items-center">
-                            <dt>Clear Cart</dt>
+                            <dt>{t('quickActions.clearCart')}</dt>
                             <dd>
-                                <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">
-                                    {KEYBOARD_SHORTCUTS.CLEAR_CART}
-                                </kbd>
+                                <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">3</kbd>
                             </dd>
                         </div>
                         <div className="flex justify-between items-center">
-                            <dt>Cancel / Clear Search</dt>
+                            <dt>{t('quickActions.cancelClearSearch')}</dt>
                             <dd>
                                 <kbd className="px-2 py-1 bg-dark-elevated rounded font-mono text-gray-400">
                                     {KEYBOARD_SHORTCUTS.CANCEL}

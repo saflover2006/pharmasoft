@@ -3,15 +3,17 @@
 
 import { useState, useEffect } from 'react';
 import invoiceService, { type Invoice } from '../services/InvoiceService';
+import { PharmacyService } from '../services/database.service';
 import { formatPrice } from '../utils/calculations';
-import { printInvoice, downloadInvoicePDF } from '../utils/invoicePDF';
+import { printInvoice } from '../utils/invoicePDF';
 
 interface InvoiceManagementProps {
     onClose: () => void;
     onNewInvoice?: () => void;
+    t: (key: string) => string;
 }
 
-export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceManagementProps) {
+export default function InvoiceManagement({ onClose, onNewInvoice, t }: InvoiceManagementProps) {
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -105,7 +107,28 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
     const handlePrint = async (invoice: Invoice) => {
         try {
             const fullInvoice = invoice.items ? invoice : (await invoiceService.getById(invoice.id)).data;
-            printInvoice(fullInvoice);
+            let pharmacyInfo;
+
+            const profileResult = await PharmacyService.getProfile();
+            if (profileResult.success && profileResult.data) {
+                const profile = profileResult.data as {
+                    name: string;
+                    address?: string | null;
+                    phone?: string | null;
+                    email?: string | null;
+                    taxId?: string | null;
+                };
+
+                pharmacyInfo = {
+                    name: profile.name,
+                    address: profile.address || '',
+                    phone: profile.phone || '',
+                    email: profile.email || '',
+                    taxId: profile.taxId || '',
+                };
+            }
+
+            printInvoice(fullInvoice as any, pharmacyInfo);
             await invoiceService.markAsPrinted(invoice.id);
             showMessage('success', `Invoice ${invoice.invoiceNumber} printed!`);
             loadInvoices();
@@ -114,15 +137,7 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
         }
     };
 
-    const handleDownloadPDF = async (invoice: Invoice) => {
-        try {
-            const fullInvoice = invoice.items ? invoice : (await invoiceService.getById(invoice.id)).data;
-            downloadInvoicePDF(fullInvoice);
-            showMessage('success', `Invoice ${invoice.invoiceNumber} downloaded!`);
-        } catch (error: any) {
-            showMessage('error', error.message || 'Failed to download PDF');
-        }
-    };
+
 
     const getInvoiceTypeBadge = (type: string) => {
         const badges = {
@@ -151,9 +166,9 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
                         <svg className="h-7 w-7 mr-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Invoice Management
+                        {t('invoiceManagement.title')}
                         <span className="ml-3 text-sm font-normal text-gray-400">
-                            ({totalInvoices} total)
+                            ({totalInvoices} {t('invoiceManagement.total')})
                         </span>
                     </h2>
                     <button
@@ -190,7 +205,7 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            placeholder="Search by invoice number, customer, or notes..."
+                            placeholder={t('invoiceManagement.searchPlaceholder')}
                             className="w-full pl-10"
                         />
                     </div>
@@ -204,11 +219,11 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
                         }}
                         className="w-40"
                     >
-                        <option value="all">All Types</option>
-                        <option value="detailed">📄 Detailed</option>
-                        <option value="receipt">🧾 Receipt</option>
-                        <option value="cnam">🏥 CNAM</option>
-                        <option value="proforma">📋 Proforma</option>
+                        <option value="all">{t('invoiceManagement.allTypes')}</option>
+                        <option value="detailed">📄 {t('invoiceManagement.detailed')}</option>
+                        <option value="receipt">🧾 {t('invoiceManagement.receipt')}</option>
+                        <option value="cnam">🏥 {t('invoiceManagement.cnam')}</option>
+                        <option value="proforma">📋 {t('invoiceManagement.proforma')}</option>
                     </select>
 
                     {/* Payment Filter */}
@@ -220,9 +235,9 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
                         }}
                         className="w-40"
                     >
-                        <option value="all">All Payments</option>
-                        <option value="paid">✓ Paid Only</option>
-                        <option value="unpaid">✗ Unpaid Only</option>
+                        <option value="all">{t('invoiceManagement.allPayments')}</option>
+                        <option value="paid">✓ {t('invoiceManagement.paidOnly')}</option>
+                        <option value="unpaid">✗ {t('invoiceManagement.unpaidOnly')}</option>
                     </select>
 
                     {/* New Invoice Button */}
@@ -235,7 +250,7 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            New Invoice
+                            {t('invoiceManagement.newInvoice')}
                         </button>
                     )}
                 </div>
@@ -244,7 +259,7 @@ export default function InvoiceManagement({ onClose, onNewInvoice }: InvoiceMana
                 <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
                     {loading ? (
                         <div className="flex items-center justify-center h-full">
-                            <div className="text-gray-400">Loading invoices...</div>
+                            <div className="text-gray-400">{t('invoiceManagement.loading')}</div>
                         </div>
                     ) : invoices.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-gray-400">

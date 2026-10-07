@@ -5,6 +5,7 @@ import { formatPrice } from '../utils/calculations';
 interface DailySummaryProps {
     onClose: () => void;
     currentUser: any;
+    t: (key: string) => string;
 }
 
 interface DailyStats {
@@ -24,7 +25,7 @@ interface DailyStats {
 /**
  * Daily summary dashboard component
  */
-export default function DailySummary({ onClose, currentUser }: DailySummaryProps) {
+export default function DailySummary({ onClose, currentUser, t }: DailySummaryProps) {
     const [stats, setStats] = useState<DailyStats>({
         totalSales: 0,
         totalRevenue: 0,
@@ -59,7 +60,7 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
 
                 // If cashier, only show their own sales
                 if (currentUser?.role === 'cashier') {
-                    todaySales = todaySales.filter(sale => sale.user_id === currentUser.id);
+                    todaySales = todaySales.filter(sale => sale.userId === currentUser.id);
                 }
 
                 // Calculate stats
@@ -113,7 +114,7 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
                         <svg className="h-7 w-7 mr-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        {currentUser?.role === 'cashier' ? 'My Daily Summary' : 'Daily Summary'}
+                        {currentUser?.role === 'cashier' ? t('dailySummary.myDailySummary') : t('dailySummary.title')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -138,14 +139,14 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Total Revenue */}
                                 <div className="card p-6 bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30">
-                                    <div className="text-sm text-gray-400 mb-2">Total Revenue</div>
+                                    <div className="text-sm text-gray-400 mb-2">{t('dailySummary.totalSales')}</div>
                                     <div className="text-3xl font-bold text-primary">{formatPrice(stats.totalRevenue)}</div>
-                                    <div className="text-xs text-gray-500 mt-2">{stats.totalTransactions} transactions</div>
+                                    <div className="text-xs text-gray-500 mt-2">{stats.totalTransactions} {t('dailySummary.transactions')}</div>
                                 </div>
 
                                 {/* Average Transaction */}
                                 <div className="card p-6 bg-gradient-to-br from-success/20 to-success/5 border-success/30">
-                                    <div className="text-sm text-gray-400 mb-2">Average Sale</div>
+                                    <div className="text-sm text-gray-400 mb-2">{t('dailySummary.averageTransaction')}</div>
                                     <div className="text-3xl font-bold text-success">{formatPrice(stats.averageTransaction)}</div>
                                     <div className="text-xs text-gray-500 mt-2">per transaction</div>
                                 </div>
@@ -153,7 +154,7 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
 
                             {/* Payment Methods */}
                             <div className="card p-6">
-                                <h3 className="text-lg font-semibold text-gray-100 mb-4">Payment Methods</h3>
+                                <h3 className="text-lg font-semibold text-gray-100 mb-4">{t('quickActions.paymentMethods')}</h3>
                                 <div className="space-y-4">
                                     <div>
                                         <div className="flex justify-between mb-2">
@@ -161,7 +162,7 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
                                                 <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                                 </svg>
-                                                Cash
+                                                {t('dailySummary.cash')}
                                             </span>
                                             <span className="font-mono font-bold text-gray-100">{formatPrice(stats.cashSales)}</span>
                                         </div>
@@ -181,7 +182,7 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
                                                 <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                                 </svg>
-                                                Card
+                                                {t('dailySummary.card')}
                                             </span>
                                             <span className="font-mono font-bold text-gray-100">{formatPrice(stats.cardSales)}</span>
                                         </div>
@@ -255,13 +256,13 @@ export default function DailySummary({ onClose, currentUser }: DailySummaryProps
                 {/* Footer */}
                 <div className="px-6 py-4 border-t border-dark-border flex justify-between items-center">
                     <div className="text-sm text-gray-500">
-                        Today: {new Date().toLocaleDateString('fr-TN', { dateStyle: 'full' })}
+                        {t('dailySummary.today')}: {new Date().toLocaleDateString('fr-TN', { dateStyle: 'full' })}
                     </div>
                     <button
                         onClick={onClose}
                         className="btn-primary px-6 py-2 rounded-lg"
                     >
-                        Close
+                        {t('dailySummary.close')}
                     </button>
                 </div>
             </div>

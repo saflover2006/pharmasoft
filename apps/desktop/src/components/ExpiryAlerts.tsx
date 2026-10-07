@@ -5,9 +5,10 @@ import type { Product } from '@repo/database';
 
 interface ExpiryAlertsProps {
     onClose: () => void;
+    t: (key: string) => string;
 }
 
-export default function ExpiryAlerts({ onClose }: ExpiryAlertsProps) {
+export default function ExpiryAlerts({ onClose, t }: ExpiryAlertsProps) {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'expired' | 'expiring'>('all');
@@ -66,7 +67,7 @@ export default function ExpiryAlerts({ onClose }: ExpiryAlertsProps) {
                         <svg className="h-7 w-7 mr-3 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Expiry Alerts
+                        {t('expiryAlerts.title')}
                     </h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -80,32 +81,32 @@ export default function ExpiryAlerts({ onClose }: ExpiryAlertsProps) {
                         <button
                             onClick={() => setFilter('all')}
                             className={`p-4 rounded-xl border-2 transition-all ${filter === 'all'
-                                    ? 'border-primary bg-primary/10'
-                                    : 'border-dark-border bg-dark-elevated hover:border-dark-border/50'
+                                ? 'border-primary bg-primary/10'
+                                : 'border-dark-border bg-dark-elevated hover:border-dark-border/50'
                                 }`}
                         >
                             <div className="text-2xl font-bold text-primary">{products.length}</div>
-                            <div className="text-sm text-gray-400">Total Tracked</div>
+                            <div className="text-sm text-gray-400">{t('expiryAlerts.totalTracked')}</div>
                         </button>
                         <button
                             onClick={() => setFilter('expiring')}
                             className={`p-4 rounded-xl border-2 transition-all ${filter === 'expiring'
-                                    ? 'border-warning bg-warning/10'
-                                    : 'border-dark-border bg-dark-elevated hover:border-dark-border/50'
+                                ? 'border-warning bg-warning/10'
+                                : 'border-dark-border bg-dark-elevated hover:border-dark-border/50'
                                 }`}
                         >
                             <div className="text-2xl font-bold text-warning">{expiringCount}</div>
-                            <div className="text-sm text-gray-400">Expiring Soon</div>
+                            <div className="text-sm text-gray-400">{t('expiryAlerts.expiringSoon')}</div>
                         </button>
                         <button
                             onClick={() => setFilter('expired')}
                             className={`p-4 rounded-xl border-2 transition-all ${filter === 'expired'
-                                    ? 'border-danger bg-danger/10'
-                                    : 'border-dark-border bg-dark-elevated hover:border-dark-border/50'
+                                ? 'border-danger bg-danger/10'
+                                : 'border-dark-border bg-dark-elevated hover:border-dark-border/50'
                                 }`}
                         >
                             <div className="text-2xl font-bold text-danger">{expiredCount}</div>
-                            <div className="text-sm text-gray-400">Expired</div>
+                            <div className="text-sm text-gray-400">{t('expiryAlerts.expired')}</div>
                         </button>
                     </div>
                 </div>
@@ -117,7 +118,7 @@ export default function ExpiryAlerts({ onClose }: ExpiryAlertsProps) {
                         </div>
                     ) : filteredProducts.length === 0 ? (
                         <div className="text-center text-gray-500 py-12">
-                            {filter === 'all' ? 'No products with expiry dates' : `No ${filter} products`}
+                            {filter === 'all' ? t('expiryAlerts.noProductsWithExpiry') : `${t('expiryAlerts.noProducts')} ${filter} products`}
                         </div>
                     ) : (
                         <div className="space-y-3">
@@ -132,12 +133,12 @@ export default function ExpiryAlerts({ onClose }: ExpiryAlertsProps) {
                                     <div
                                         key={product.id}
                                         className={`p-4 rounded-xl border-2 ${status === 'expired'
-                                                ? 'border-danger bg-danger/10'
-                                                : status === 'critical'
-                                                    ? 'border-warning bg-warning/10'
-                                                    : status === 'warning'
-                                                        ? 'border-warning/50 bg-warning/5'
-                                                        : 'border-dark-border bg-dark-elevated'
+                                            ? 'border-danger bg-danger/10'
+                                            : status === 'critical'
+                                                ? 'border-warning bg-warning/10'
+                                                : status === 'warning'
+                                                    ? 'border-warning/50 bg-warning/5'
+                                                    : 'border-dark-border bg-dark-elevated'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start">
@@ -155,17 +156,17 @@ export default function ExpiryAlerts({ onClose }: ExpiryAlertsProps) {
                                             </div>
                                             <div className="text-right">
                                                 <div className={`text-2xl font-bold ${status === 'expired' ? 'text-danger' :
-                                                        status === 'critical' ? 'text-warning' :
-                                                            status === 'warning' ? 'text-warning/70' :
-                                                                'text-gray-400'
+                                                    status === 'critical' ? 'text-warning' :
+                                                        status === 'warning' ? 'text-warning/70' :
+                                                            'text-gray-400'
                                                     }`}>
-                                                    {daysUntilExpiry < 0 ? 'EXPIRED' : `${daysUntilExpiry}d`}
+                                                    {daysUntilExpiry < 0 ? t('search.expired') : `${daysUntilExpiry}${t('search.days')}`}
                                                 </div>
                                                 <div className="text-xs text-gray-500 mt-1">
                                                     {expiryDate?.toLocaleDateString()}
                                                 </div>
                                                 <div className="text-xs text-gray-600 mt-1">
-                                                    Stock: {product.current_stock}
+                                                    {t('search.stock')}: {product.current_stock}
                                                 </div>
                                             </div>
                                         </div>

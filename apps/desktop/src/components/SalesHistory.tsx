@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SalesService } from '../services/database.service';
+import { SalesService, PharmacyService } from '../services/database.service';
 import { formatPrice } from '../utils/calculations';
 import { LOCALE, DATETIME_FORMAT } from '../constants';
 
@@ -9,7 +9,7 @@ interface Sale {
     total_amount: number;
     payment_method: string;
     discount: number;
-    user_id?: number;
+    userId?: number;
     user?: {
         id: number;
         name: string;
@@ -35,12 +35,13 @@ interface Sale {
 interface SalesHistoryProps {
     onClose: () => void;
     currentUser: any;
+    t: (key: string) => string;
 }
 
 /**
  * Sales history view component
  */
-export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps) {
+export default function SalesHistory({ onClose, currentUser, t }: SalesHistoryProps) {
     const [sales, setSales] = useState<Sale[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
@@ -59,7 +60,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                 // If cashier, filter to only their sales (exclude sales without user_id)
                 if (currentUser?.role === 'cashier') {
                     salesData = salesData.filter(sale =>
-                        sale.user_id != null && sale.user_id === currentUser.id
+                        sale.userId != null && sale.userId === currentUser.id
                     );
                 }
 
@@ -85,7 +86,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                         <svg className="h-7 w-7 mr-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        {currentUser?.role === 'cashier' ? 'My Sales History' : 'Sales History'}
+                        {currentUser?.role === 'cashier' ? t('salesHistory.mySalesHistory') : t('salesHistory.title')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -127,7 +128,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                         <div className="flex items-start justify-between mb-2">
                                             <div>
                                                 <div className="font-semibold text-gray-100">
-                                                    Sale #{sale.id}
+                                                    {t('salesHistory.sale')} #{sale.id}
                                                 </div>
                                                 <div className="text-sm text-gray-500">
                                                     {formatDateTime(sale.timestamp)}
@@ -159,7 +160,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                             </div>
                                         )}
                                         <div className="text-xs text-gray-600 mt-1">
-                                            {sale.items.length} item{sale.items.length !== 1 ? 's' : ''}
+                                            {sale.items.length} {sale.items.length !== 1 ? t('salesHistory.items').toLowerCase() : t('salesHistory.item')}
                                         </div>
                                     </button>
                                 ))}
@@ -172,27 +173,27 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                         {selectedSale ? (
                             <div>
                                 <h3 className="text-xl font-bold text-gray-100 mb-4">
-                                    Sale Details
+                                    {t('salesHistory.saleDetails')}
                                 </h3>
 
                                 {/* Sale Info */}
                                 <div className="card p-4 mb-4">
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
-                                            <div className="text-gray-500">Date & Time</div>
+                                            <div className="text-gray-500">{t('salesHistory.dateTime')}</div>
                                             <div className="font-medium text-gray-100">
                                                 {formatDateTime(selectedSale.timestamp)}
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="text-gray-500">Payment Method</div>
+                                            <div className="text-gray-500">{t('salesHistory.paymentMethod')}</div>
                                             <div className="font-medium text-gray-100 capitalize">
                                                 {selectedSale.payment_method}
                                             </div>
                                         </div>
                                         {selectedSale.user && (
                                             <div>
-                                                <div className="text-gray-500">Cashier</div>
+                                                <div className="text-gray-500">{t('salesHistory.cashier')}</div>
                                                 <div className="font-medium text-gray-100">
                                                     {selectedSale.user.name}
                                                 </div>
@@ -201,13 +202,13 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                         {selectedSale.customer && (
                                             <>
                                                 <div>
-                                                    <div className="text-gray-500">Customer</div>
+                                                    <div className="text-gray-500">{t('salesHistory.customer')}</div>
                                                     <div className="font-medium text-gray-100">
                                                         {selectedSale.customer.name}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-gray-500">Phone</div>
+                                                    <div className="text-gray-500">{t('salesHistory.phone')}</div>
                                                     <div className="font-medium text-gray-100">
                                                         {selectedSale.customer.phone || 'N/A'}
                                                     </div>
@@ -219,7 +220,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
 
                                 {/* Items */}
                                 <div>
-                                    <h4 className="font-semibold text-gray-300 mb-3">Items</h4>
+                                    <h4 className="font-semibold text-gray-300 mb-3">{t('salesHistory.items')}</h4>
                                     <div className="space-y-2">
                                         {selectedSale.items.map((item) => (
                                             <div
@@ -250,7 +251,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                 {/* Total */}
                                 <div className="mt-6 card p-4 bg-gradient-to-br from-dark-surface to-dark-elevated">
                                     <div className="flex justify-between items-center text-2xl font-bold">
-                                        <span className="text-gray-100">Total</span>
+                                        <span className="text-gray-100">{t('salesHistory.total')}</span>
                                         <span className="text-primary">{formatPrice(selectedSale.total_amount)}</span>
                                     </div>
                                 </div>
@@ -259,6 +260,25 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                 <button
                                     onClick={async () => {
                                         const { printReceipt } = await import('../utils/receipt');
+
+                                        // Load Pharmacy Profile for Receipt
+                                        let config;
+                                        try {
+                                            const profileRes = await PharmacyService.getProfile();
+                                            if (profileRes.success && profileRes.data) {
+                                                const p = profileRes.data;
+                                                config = {
+                                                    pharmacyName: p.name,
+                                                    address: p.address || '',
+                                                    phone: p.phone || '',
+                                                    taxId: p.taxId || '',
+                                                    footer: p.footer || 'Merci de votre visite!'
+                                                };
+                                            }
+                                        } catch (e) {
+                                            console.warn('Failed to load pharmacy profile for receipt', e);
+                                        }
+
                                         const subtotal = selectedSale.items.reduce(
                                             (sum, item) => sum + item.unit_price * item.quantity,
                                             0
@@ -283,14 +303,14 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                                 name: selectedSale.customer.name,
                                                 phone: selectedSale.customer.phone ?? undefined,
                                             } : undefined,
-                                        });
+                                        }, config);
                                     }}
                                     className="w-full btn-primary mt-4 py-3 rounded-xl flex items-center justify-center"
                                 >
                                     <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                     </svg>
-                                    Print Receipt
+                                    {t('salesHistory.printReceipt')}
                                 </button>
                             </div>
                         ) : (
@@ -298,7 +318,7 @@ export default function SalesHistory({ onClose, currentUser }: SalesHistoryProps
                                 <svg className="h-20 w-20 mb-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
-                                <p className="text-lg font-medium">Select a sale to view details</p>
+                                <p className="text-lg font-medium">{t('salesHistory.selectSaleToView')}</p>
                             </div>
                         )}
                     </div>

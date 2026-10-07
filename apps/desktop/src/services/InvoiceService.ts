@@ -1,7 +1,7 @@
 // Invoice Management Service
 // Provides API interactions for invoice CRUD operations
 
-import { API_BASE_URL } from '../config';
+import { apiFetch } from './database.service';
 
 export interface InvoiceItem {
     id?: number;
@@ -78,6 +78,9 @@ export interface InvoiceFormData {
 export interface InvoiceListResponse {
     success: boolean;
     data: Invoice[];
+    error?: {
+        message?: string;
+    };
     pagination: {
         page: number;
         limit: number;
@@ -89,6 +92,9 @@ export interface InvoiceListResponse {
 export interface InvoiceResponse {
     success: boolean;
     data: Invoice;
+    error?: {
+        message?: string;
+    };
 }
 
 export interface InvoiceSearchParams {
@@ -109,6 +115,11 @@ export interface InvoiceStats {
 }
 
 class InvoiceService {
+    private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+        const result = await apiFetch<T>(endpoint, options);
+        return result;
+    }
+
     /**
      * Get all invoices with pagination and filters
      */
@@ -126,45 +137,38 @@ class InvoiceService {
             queryParams.append('isPaid', params.isPaid.toString());
         }
 
-        const url = `${API_BASE_URL}/invoices?${queryParams.toString()}`;
-        const response = await fetch(url);
+        const result = await this.request<InvoiceListResponse>(`/invoices?${queryParams.toString()}`);
 
-        if (!response.ok) {
+        if (!result.success) {
             throw new Error('Failed to fetch invoices');
         }
 
-        return response.json();
+        return result;
     }
 
     /**
      * Get invoice by ID
      */
     async getById(id: number): Promise<InvoiceResponse> {
-        const response = await fetch(`${API_BASE_URL}/invoices/${id}`);
+        const result = await this.request<InvoiceResponse>(`/invoices/${id}`);
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error?.message || 'Failed to fetch invoice');
+        if (!result.success) {
+            throw new Error(result.error?.message || 'Failed to fetch invoice');
         }
 
-        return response.json();
+        return result;
     }
 
     /**
      * Create a new invoice
      */
     async create(data: InvoiceFormData): Promise<InvoiceResponse> {
-        const response = await fetch(`${API_BASE_URL}/invoices`, {
+        const result = await this.request<InvoiceResponse>('/invoices', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to create invoice');
         }
 
@@ -178,17 +182,12 @@ class InvoiceService {
         id: number,
         data: { isPaid: boolean; paidAt?: string; paymentMethod?: string }
     ): Promise<InvoiceResponse> {
-        const response = await fetch(`${API_BASE_URL}/invoices/${id}/payment`, {
+        const result = await this.request<InvoiceResponse>(`/invoices/${id}/payment`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to update payment status');
         }
 
@@ -199,16 +198,11 @@ class InvoiceService {
      * Mark invoice as printed
      */
     async markAsPrinted(id: number): Promise<InvoiceResponse> {
-        const response = await fetch(`${API_BASE_URL}/invoices/${id}/print`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        const result = await this.request<InvoiceResponse>(`/invoices/${id}/print`, {
+            method: 'PATCH'
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to mark as printed');
         }
 
@@ -223,31 +217,28 @@ class InvoiceService {
         if (startDate) queryParams.append('startDate', startDate);
         if (endDate) queryParams.append('endDate', endDate);
 
-        const url = `${API_BASE_URL}/invoices/stats/summary?${queryParams.toString()}`;
-        const response = await fetch(url);
+        const result = await this.request<{ success: boolean; data: InvoiceStats }>(`/invoices/stats/summary?${queryParams.toString()}`);
 
-        if (!response.ok) {
+        if (!result.success) {
             throw new Error('Failed to fetch invoice statistics');
         }
 
-        return response.json();
+        return result;
     }
 
     /**
      * Delete invoice (only if not printed and not linked to sale)
      */
     async delete(id: number): Promise<{ success: boolean }> {
-        const response = await fetch(`${API_BASE_URL}/invoices/${id}`, {
+        const result = await this.request<{ success: boolean; error?: { message?: string } }>(`/invoices/${id}`, {
             method: 'DELETE'
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             throw new Error(result.error?.message || 'Failed to delete invoice');
         }
 
-        return result;
+        return { success: true };
     }
 
     /**

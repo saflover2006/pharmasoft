@@ -6,9 +6,10 @@ import customerService, { type Customer, type CustomerFormData } from '../servic
 
 interface CustomerManagementProps {
     onClose: () => void;
+    t: (key: string) => string;
 }
 
-export default function CustomerManagement({ onClose }: CustomerManagementProps) {
+export default function CustomerManagement({ onClose, t }: CustomerManagementProps) {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -142,7 +143,7 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                         <svg className="h-7 w-7 mr-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        Customer Management
+                        {t('customerManagement.title')}
                         <span className="ml-3 text-sm font-normal text-gray-400">
                             ({totalCustomers} total)
                         </span>
@@ -181,7 +182,7 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            placeholder="Search by name, phone, email, or address..."
+                            placeholder={t('customerManagement.searchPlaceholder')}
                             className="w-full pl-10"
                         />
                     </div>
@@ -195,9 +196,9 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                         }}
                         className="w-48"
                     >
-                        <option value="all">All Types</option>
-                        <option value="individual">Individual</option>
-                        <option value="company">Company</option>
+                        <option value="all">{t('customerManagement.allTypes')}</option>
+                        <option value="individual">{t('customerManagement.individual')}</option>
+                        <option value="company">{t('customerManagement.company')}</option>
                     </select>
 
                     {/* Add Button */}
@@ -208,7 +209,7 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
-                        New Customer
+                        {t('customerManagement.newCustomer')}
                     </button>
                 </div>
 
@@ -216,16 +217,16 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                 <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
                     {loading ? (
                         <div className="flex items-center justify-center h-full">
-                            <div className="text-gray-400">Loading customers...</div>
+                            <div className="text-gray-400">{t('customerManagement.loading')}</div>
                         </div>
                     ) : customers.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-gray-400">
                             <svg className="h-16 w-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            <p>No customers found</p>
+                            <p>{t('customerManagement.noCustomers')}</p>
                             <button onClick={handleCreate} className="btn-primary mt-4 px-6 py-2">
-                                Add Your First Customer
+                                {t('customerManagement.addFirstCustomer')}
                             </button>
                         </div>
                     ) : (
@@ -243,11 +244,11 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                                                     ? 'bg-primary/20 text-primary border border-primary/30'
                                                     : 'bg-gray-600/20 text-gray-400 border border-gray-600/30'
                                                     }`}>
-                                                    {customer.customerType === 'company' ? '🏢 Company' : '👤 Individual'}
+                                                    {customer.customerType === 'company' ? `🏢 ${t('customerManagement.company')}` : `👤 ${t('customerManagement.individual')}`}
                                                 </span>
                                                 {customer._count && customer._count.invoices > 0 && (
                                                     <span className="text-xs px-2 py-1 rounded bg-success/20 text-success border border-success/30">
-                                                        {customer._count.invoices} invoice{customer._count.invoices !== 1 ? 's' : ''}
+                                                        {customer._count.invoices} {customer._count.invoices !== 1 ? t('customerManagement.invoices') : t('customerManagement.invoice')}
                                                     </span>
                                                 )}
                                             </div>
@@ -280,7 +281,7 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                                                 )}
                                                 {customer.taxId && (
                                                     <div className="flex items-center gap-2">
-                                                        <span className="font-medium">Tax ID:</span> {customer.taxId}
+                                                        <span className="font-medium">{t('customerManagement.taxId')}:</span> {customer.taxId}
                                                     </div>
                                                 )}
                                                 {customer.cnamNumber && (
@@ -322,7 +323,7 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                 {totalPages > 1 && (
                     <div className="px-6 py-4 border-t border-dark-border flex items-center justify-between flex-shrink-0">
                         <div className="text-sm text-gray-400">
-                            Page {currentPage} of {totalPages}
+                            {t('customerManagement.page')} {currentPage} {t('customerManagement.of')} {totalPages}
                         </div>
                         <div className="flex gap-2">
                             <button
@@ -330,14 +331,14 @@ export default function CustomerManagement({ onClose }: CustomerManagementProps)
                                 disabled={currentPage === 1}
                                 className="btn-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Previous
+                                {t('customerManagement.previous')}
                             </button>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                                 className="btn-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Next
+                                {t('customerManagement.next')}
                             </button>
                         </div>
                     </div>

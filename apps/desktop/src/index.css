@@ -77,6 +77,10 @@
     @apply btn bg-dark-elevated hover:bg-dark-border text-gray-100 focus:ring-gray-500;
   }
 
+  .btn-warning {
+    @apply btn bg-amber-500 hover:bg-amber-600 text-white focus:ring-amber-500;
+  }
+
   .card {
     @apply bg-dark-surface rounded-xl border border-dark-border shadow-lg;
   }
@@ -97,6 +101,8 @@
 
   .scrollbar-thin::-webkit-scrollbar {
     width: 8px;
+    height: 6px;
+    /* For horizontal scrollbar */
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
@@ -109,5 +115,11 @@
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-500;
+  }
+
+  /* Smooth scrolling for navbar */
+  .overflow-x-auto {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 }
