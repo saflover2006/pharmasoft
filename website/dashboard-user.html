@@ -33,6 +33,7 @@
             color: #2563eb;
         }
     </style>
+  <script src="config.js"></script>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
@@ -528,9 +529,7 @@
 
     <script>
         // === INITIALIZATION ===
-        // Base path resolution for subfolder hosting (e.g. /pharmasoft/)
-  const BASE_PATH = window.location.pathname.startsWith('/pharmasoft') ? '/pharmasoft' : '';
-  const API_URL = BASE_PATH + '/api';
+        const API_URL = window.API_URL || "/api";
         let user = JSON.parse(localStorage.getItem('pharmasoft_user') || '{}');
         let allUserTickets = [];
         let billingData = { invoices: [], currentPlan: 'free', paymentStatus: 'unpaid', renewalDate: null };
@@ -608,7 +607,7 @@
 
         async function launchProduct(productId) {
             if (productId === 'pharmasoft') {
-                window.location.href = BASE_PATH + '/dashboard-user.html';
+                window.location.href = '/dashboard-user.html';
                 return;
             }
 
@@ -962,7 +961,7 @@
         }
 
         if (!token) {
-            window.location.href = BASE_PATH + '/index.html';
+            window.location.href = '/index.html';
         }
 
         async function syncUser() {
@@ -1623,7 +1622,7 @@
             localStorage.removeItem('pharmasoft_token');
             localStorage.removeItem('pharmasoft_user');
             localStorage.removeItem('admin_token');
-            window.location.href = BASE_PATH + '/index.html';
+            window.location.href = '/index.html';
         }
 
         // Initial Render
